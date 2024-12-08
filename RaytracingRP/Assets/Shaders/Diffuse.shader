@@ -131,6 +131,7 @@
                 payload.primateColor = float4(albedo, 1);
                 payload.color = float4(albedo, 1);
                 payload.worldPos = float4(worldPosition, 1);
+                payload.primateNormal = v.normal;
             }
 
             [shader("closesthit")]

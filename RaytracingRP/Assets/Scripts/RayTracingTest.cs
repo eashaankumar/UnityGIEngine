@@ -10,7 +10,7 @@ public class RayTracingTest : MonoBehaviour
     private int cameraWidth = 0;
     private int cameraHeight = 0;
 
-    private RenderTexture primateRayOutput = null;     
+    private RenderTexture primateRayOutput = null, primateNormalDepth = null;     
 
 	private UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
 
@@ -41,6 +41,9 @@ public class RayTracingTest : MonoBehaviour
         {
             primateRayOutput.Release();
             primateRayOutput = null;
+
+            primateNormalDepth.Release();
+            primateNormalDepth = null;
         }
 
         cameraWidth = 0;
@@ -53,16 +56,23 @@ public class RayTracingTest : MonoBehaviour
 
         if (cameraWidth != Camera.main.pixelWidth || cameraHeight != Camera.main.pixelHeight)
         {
-            if (primateRayOutput)
-                primateRayOutput.Release();
+            CreateRT(ref primateRayOutput);
 
-            primateRayOutput = new RenderTexture(Camera.main.pixelWidth, Camera.main.pixelHeight, 0, RenderTextureFormat.ARGBHalf);
-            primateRayOutput.enableRandomWrite = true;
-            primateRayOutput.Create();
-          
+            CreateRT(ref primateNormalDepth);
+
             cameraWidth = Camera.main.pixelWidth;
             cameraHeight = Camera.main.pixelHeight;
         }
+    }
+
+    void CreateRT(ref RenderTexture tex)
+    {
+        if (tex)
+            tex.Release();
+
+        tex = new RenderTexture(Camera.main.pixelWidth, Camera.main.pixelHeight, 0, RenderTextureFormat.ARGBHalf);
+        tex.enableRandomWrite = true;
+        tex.Create();
     }
 
     void OnDisable()
@@ -106,6 +116,7 @@ public class RayTracingTest : MonoBehaviour
    
         // Output
         rayTracingShader.SetTexture("g_PrimateRayOutput", primateRayOutput);
+        rayTracingShader.SetTexture("g_PrimateNormalDepth", primateNormalDepth);
 
         rayTracingShader.Dispatch("MainRayGenShader", cameraWidth, cameraHeight, 1);
 
