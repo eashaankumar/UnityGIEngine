@@ -21,7 +21,7 @@ RWTexture2D<float4> 					g_PrimateNormalDepth;
 [shader("miss")]
 void MainMissShader1_Primary(inout RayPayload payload : SV_RayPayload)
 {
-	payload.color = 0;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0) * 1;
+	payload.color = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
@@ -29,7 +29,7 @@ void MainMissShader1_Primary(inout RayPayload payload : SV_RayPayload)
 void MainMissShader2_Shadow(inout RayPayloadShadow payload : SV_RayPayload)
 {
     // The ray "hit" the light.
-	payload.shadowValue = 0;//1.0;
+	payload.shadowValue = 1;//1.0;
 }
 
 void TracePrimateRay()
@@ -70,6 +70,8 @@ void TracePrimateRay()
     
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, payload);
 
+    // ignore skybox, just raw albedo
+
     g_PrimateRayOutput[frameCoord] = payload.primateColor;
 
     float4 normalDepth = 0;
@@ -105,7 +107,8 @@ void TraceDirectDiffuse()
     // Rotate the ray from view space to world space.
     float3 rayOrigin = float3(g_InvViewMatrix[0][3], g_InvViewMatrix[1][3], g_InvViewMatrix[2][3]);
     float3 rayDirection = normalize(mul((float3x3)g_InvViewMatrix, viewDirection));
-
+    
+    uint missShaderIndex = 0;
     RayDesc ray;
     ray.Origin = rayOrigin;
     ray.Direction = rayDirection;
@@ -113,15 +116,25 @@ void TraceDirectDiffuse()
     ray.TMax = 1e10f;
         
     RayPayload payload;   
-    payload.rayType = 0;
+    payload.rayType = 1;
+    payload.bounceRayOrigin = float3(0, 0, 0);
+    payload.bounceRayDir = float3(0, 0, 0);
     payload.primateNormal = float3(0, 0, 0);
     payload.primateColor = float4(0, 0, 0, 0);
     payload.color = float4(0, 0, 0, 0);
     payload.worldPos = float4(0, 0, 0, 1);
 	payload.bounceIndex = 0;
+    payload.rngState = rngState;
     
-    TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, payload);
-    g_PrimateRayOutput[frameCoord] = payload.primateColor;
+    TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
+    // update second ray info from payload.bounceRay
+    ray.Origin = payload.bounceRayOrigin;
+    ray.Direction = payload.bounceRayDir;
+
+    TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
+    // ignore actual skybox, just the light emitted by the skybox which is touhcing surface
+
+    g_PrimateRayOutput[frameCoord] = payload.color;
 }
 
 [shader("raygeneration")]
