@@ -101,8 +101,7 @@
                 return v;
             }
 
-            [shader("closesthit")]
-            void ClosestHitMain(inout RayPayload payload : SV_RayPayload, AttributeData attribs : SV_IntersectionAttributes)
+            void HandlePrimateRay(inout RayPayload payload : SV_RayPayload, AttributeData attribs : SV_IntersectionAttributes)
             {
                 uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
 
@@ -113,25 +112,35 @@
 
                 float3 barycentricCoords = float3(1.0 - attribs.barycentrics.x - attribs.barycentrics.y, attribs.barycentrics.x, attribs.barycentrics.y);
                 Vertex v = InterpolateVertices(v0, v1, v2, barycentricCoords);
-                
+
                 float3 worldPosition = mul(ObjectToWorld(), float4(v.position, 1));
 
                 float3 e0 = v1.position - v0.position;
                 float3 e1 = v2.position - v0.position;
 
-          //      float3 faceNormal = normalize(mul(cross(e0, e1), (float3x3)WorldToObject()));
+                //      float3 faceNormal = normalize(mul(cross(e0, e1), (float3x3)WorldToObject()));
                 float3 faceNormal = normalize(mul(v.normal, (float3x3)WorldToObject()));
-                
+
                 bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
                 faceNormal = (isFrontFace == false) ? -faceNormal : faceNormal;
 
                 float3 texColor = _MainTex.SampleLevel(sampler_linear_repeat, v.uv * _MainTex_ST.xy, 0).rgb;
-              
+
                 float3 albedo = texColor * _Color.xyz;
 
                 payload.primateColor = float4(albedo, 1);
                 payload.color = float4(albedo, 1);
                 payload.worldPos = float4(worldPosition, 1);
+            }
+
+            [shader("closesthit")]
+            void ClosestHitMain(inout RayPayload payload : SV_RayPayload, AttributeData attribs : SV_IntersectionAttributes)
+            {
+                // primate
+                if (payload.rayType == 0)
+                {
+                    HandlePrimateRay(payload, attribs);
+                }
             }
 
             ENDHLSL

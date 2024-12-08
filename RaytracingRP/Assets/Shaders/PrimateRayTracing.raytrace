@@ -59,7 +59,8 @@ void MainRayGenShader()
     ray.TMin = 0;
     ray.TMax = 1e10f;
         
-    RayPayload payload;    
+    RayPayload payload;   
+    payload.rayType = 0;
     payload.primateColor = float4(0, 0, 0, 0);
     payload.color = float4(0, 0, 0, 0);
     payload.worldPos = float4(0, 0, 0, 1);
