@@ -162,10 +162,10 @@
 
                 float3 albedo = texColor * _Color.xyz;
 
-                payload.primateColor = float4(albedo, 1);
-                payload.color = float4(1, 1, 1, 1);
-                payload.worldPos = float4(worldPosition, 1);
-                payload.primateNormal = v.normal;
+                //payload.primateColor = float4(albedo, 1);
+                payload.color *= float4(1, 1, 1, 1);
+                //payload.worldPos = float4(worldPosition, 1);
+                //payload.primateNormal = v.normal;
 
                 float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
                 float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
@@ -176,6 +176,8 @@
 
                 payload.bounceRayOrigin = worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal;
                 payload.bounceRayDir = reflectedRayDir;
+
+                payload.bounceIndex += 1;
             }
 
             [shader("closesthit")]

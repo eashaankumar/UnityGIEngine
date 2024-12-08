@@ -19,18 +19,18 @@ RWTexture2D<float4> 					g_PrimateRayOutput;
 RWTexture2D<float4> 					g_PrimateNormalDepth;
 
 [shader("miss")]
-void MainMissShader1_Primary(inout RayPayload payload : SV_RayPayload)
+void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
 	payload.color = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
-[shader("miss")]
+/*[shader("miss")]
 void MainMissShader2_Shadow(inout RayPayloadShadow payload : SV_RayPayload)
 {
     // The ray "hit" the light.
 	payload.shadowValue = 1;//1.0;
-}
+}*/
 
 void TracePrimateRay()
 {
@@ -127,14 +127,26 @@ void TraceDirectDiffuse()
     payload.rngState = rngState;
     
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
-    // update second ray info from payload.bounceRay
-    ray.Origin = payload.bounceRayOrigin;
-    ray.Direction = payload.bounceRayDir;
+    
+    float4 globalIllumination = float4(0, 0, 0, 0);
 
-    TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
+    if (payload.bounceIndex > 0)
+    {
+        // hit
+         // update second ray info from payload.bounceRay
+        ray.Origin = payload.bounceRayOrigin;
+        ray.Direction = payload.bounceRayDir;
+        TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
+        globalIllumination = payload.color;
+    }
+    else
+    {
+        globalIllumination = float4(0, 0, 0, 0);
+    }
+
     // ignore actual skybox, just the light emitted by the skybox which is touhcing surface
 
-    g_PrimateRayOutput[frameCoord] = payload.color;
+    g_PrimateRayOutput[frameCoord] *= globalIllumination;
 }
 
 [shader("raygeneration")]
