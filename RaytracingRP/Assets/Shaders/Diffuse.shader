@@ -133,6 +133,7 @@
               
                 float3 albedo = texColor * _Color.xyz * PointLightColor * PointLightIntensity * saturate(dot(faceNormal, normalize(vecToLight))) * CalculateLightFalloff(distToLight, PointLightRange);
 
+                payload.primateColor = float4(texColor * _Color.xyz, 1);
                 payload.color = float4(albedo, 1);
                 payload.worldPos = float4(worldPosition, 1);
             }
