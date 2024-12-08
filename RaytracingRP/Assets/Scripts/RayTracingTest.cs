@@ -5,13 +5,12 @@
 public class RayTracingTest : MonoBehaviour
 {     
     public UnityEngine.Rendering.RayTracingShader rayTracingShader = null;
-    public Light pointLight = null;
     public Cubemap envMap = null;
 
     private int cameraWidth = 0;
     private int cameraHeight = 0;
 
-    private RenderTexture rayTracingOutput = null;     
+    private RenderTexture primateRayOutput = null;     
 
 	private UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
 
@@ -38,10 +37,10 @@ public class RayTracingTest : MonoBehaviour
             raytracingAccelerationStructure = null;
         }
 
-        if (rayTracingOutput)
+        if (primateRayOutput)
         {
-            rayTracingOutput.Release();
-            rayTracingOutput = null;
+            primateRayOutput.Release();
+            primateRayOutput = null;
         }
 
         cameraWidth = 0;
@@ -54,12 +53,12 @@ public class RayTracingTest : MonoBehaviour
 
         if (cameraWidth != Camera.main.pixelWidth || cameraHeight != Camera.main.pixelHeight)
         {
-            if (rayTracingOutput)
-                rayTracingOutput.Release();
+            if (primateRayOutput)
+                primateRayOutput.Release();
 
-            rayTracingOutput = new RenderTexture(Camera.main.pixelWidth, Camera.main.pixelHeight, 0, RenderTextureFormat.ARGBHalf);
-            rayTracingOutput.enableRandomWrite = true;
-            rayTracingOutput.Create();
+            primateRayOutput = new RenderTexture(Camera.main.pixelWidth, Camera.main.pixelHeight, 0, RenderTextureFormat.ARGBHalf);
+            primateRayOutput.enableRandomWrite = true;
+            primateRayOutput.Create();
           
             cameraWidth = Camera.main.pixelWidth;
             cameraHeight = Camera.main.pixelHeight;
@@ -89,22 +88,12 @@ public class RayTracingTest : MonoBehaviour
             return;
         }
    
-        if (pointLight == null || pointLight.type != LightType.Point)
-        {
-            Debug.Log("Please set a point light to this script.");
-            return;
-        }
-
         if (raytracingAccelerationStructure == null)
             return;
 
         // Use Shader Pass "Test" in surface (material) shaders."
         rayTracingShader.SetShaderPass("Test");
 
-        Shader.SetGlobalVector(Shader.PropertyToID("PointLightPosition"), pointLight.transform.position);
-        Shader.SetGlobalVector(Shader.PropertyToID("PointLightColor"), pointLight.color);
-        Shader.SetGlobalFloat(Shader.PropertyToID("PointLightRange"), pointLight.range);
-        Shader.SetGlobalFloat(Shader.PropertyToID("PointLightIntensity"), pointLight.intensity);
         Shader.SetGlobalMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
         Shader.SetGlobalTexture(Shader.PropertyToID("g_EnvTex"), envMap);
         
@@ -116,10 +105,10 @@ public class RayTracingTest : MonoBehaviour
         rayTracingShader.SetFloat(Shader.PropertyToID("g_Zoom"), Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView * 0.5f));
    
         // Output
-        rayTracingShader.SetTexture("g_Output", rayTracingOutput);
+        rayTracingShader.SetTexture("g_PrimateRayOutput", primateRayOutput);
 
         rayTracingShader.Dispatch("MainRayGenShader", cameraWidth, cameraHeight, 1);
 
-        Graphics.Blit(rayTracingOutput, dest);
+        Graphics.Blit(primateRayOutput, dest);
     }
 }

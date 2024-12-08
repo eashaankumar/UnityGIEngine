@@ -59,7 +59,6 @@
 
             #include "UnityShaderVariables.cginc"
             #include "UnityRaytracingMeshUtils.cginc"
-            #include "Light.hlsl"
             #include "RayPayload.hlsl"
 
             #pragma raytracing test
@@ -126,14 +125,11 @@
                 bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
                 faceNormal = (isFrontFace == false) ? -faceNormal : faceNormal;
 
-                float3 vecToLight = PointLightPosition.xyz - worldPosition;
-                float distToLight = length(PointLightPosition.xyz - worldPosition);
-
                 float3 texColor = _MainTex.SampleLevel(sampler_linear_repeat, v.uv * _MainTex_ST.xy, 0).rgb;
               
-                float3 albedo = texColor * _Color.xyz * PointLightColor * PointLightIntensity * saturate(dot(faceNormal, normalize(vecToLight))) * CalculateLightFalloff(distToLight, PointLightRange);
+                float3 albedo = texColor * _Color.xyz;
 
-                payload.primateColor = float4(texColor * _Color.xyz, 1);
+                payload.primateColor = float4(albedo, 1);
                 payload.color = float4(albedo, 1);
                 payload.worldPos = float4(worldPosition, 1);
             }
