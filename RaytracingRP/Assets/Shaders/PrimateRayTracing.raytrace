@@ -17,11 +17,13 @@ SamplerState                            sampler_linear_repeat;
 // Output
 RWTexture2D<float4> 					g_PrimateRayOutput;
 RWTexture2D<float4> 					g_PrimateNormalDepth;
+RWTexture2D<float4> 					g_DirectDiffuse;
+RWTexture2D<float4> 					g_IndirectDiffuse;
 
 [shader("miss")]
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
-	payload.color = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
+	payload.color = 1;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
@@ -121,32 +123,55 @@ void TraceDirectDiffuse()
     payload.bounceRayDir = float3(0, 0, 0);
     payload.primateNormal = float3(0, 0, 0);
     payload.primateColor = float4(0, 0, 0, 0);
-    payload.color = float4(0, 0, 0, 0);
+    payload.color = float4(1, 1, 1, 1);
     payload.worldPos = float4(0, 0, 0, 1);
 	payload.bounceIndex = 0;
     payload.rngState = rngState;
     
+    // first lets get back to the object contact point
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
     
-    float4 globalIllumination = float4(0, 0, 0, 0);
+    float4 directDiffuseGI = float4(0, 0, 0, 0);
+    float4 indirectDiffuseGI = float4(0, 0, 0, 0);
 
     if (payload.bounceIndex > 0)
     {
+        uint bounceIndex = payload.bounceIndex;
         // hit
-         // update second ray info from payload.bounceRay
+        // update second ray info from payload.bounceRay
         ray.Origin = payload.bounceRayOrigin;
         ray.Direction = payload.bounceRayDir;
+        //payload.color = float4(1, 1, 1, 1);
+        payload.rayType = 1;
         TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
-        globalIllumination = payload.color;
+        directDiffuseGI = payload.color;
+
+        // if we still did not hit skybox, send ANOTHER ray for INDIRECT DIFFUSE (raytype = 2)
+        
+        if (payload.bounceIndex > 1)
+        {
+            payload.rayType = 2;
+            ray.Origin = payload.bounceRayOrigin;
+            ray.Direction = payload.bounceRayDir;
+            payload.color = 0; // ignore any color transfers (cause we can only afford 1 indirect ray...we dont know if this point will be illuminated...otherwise you would get indirect "glow", or light even if its dark outside)
+            // just the illuminance
+            TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
+            indirectDiffuseGI = payload.color;            
+        }
+        else
+        {
+            indirectDiffuseGI = float4(0, 0, 0, 0);
+        }
     }
     else
     {
-        globalIllumination = float4(0, 0, 0, 0);
+        directDiffuseGI = float4(0, 0, 0, 0);
     }
 
     // ignore actual skybox, just the light emitted by the skybox which is touhcing surface
 
-    g_PrimateRayOutput[frameCoord] *= globalIllumination;
+    g_DirectDiffuse[frameCoord] = directDiffuseGI;
+    g_IndirectDiffuse[frameCoord] = indirectDiffuseGI;
 }
 
 [shader("raygeneration")]
@@ -162,6 +187,8 @@ void MainRayGenShader()
     //g_PrimateRayOutput[frameCoord] = g_PrimateNormalDepth[frameCoord].w;
 
     TraceDirectDiffuse();
+
+    g_PrimateRayOutput[frameCoord] *= g_DirectDiffuse[frameCoord] + g_IndirectDiffuse[frameCoord];
     
     // Shadow ray
     /*float3 vecToLight = PointLightPosition - payload.worldPos.xyz;

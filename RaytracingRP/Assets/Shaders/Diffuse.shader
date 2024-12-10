@@ -102,7 +102,7 @@
                 return v;
             }
 
-            void HandlePrimateRay(inout RayPayload payload : SV_RayPayload, AttributeData attribs : SV_IntersectionAttributes)
+            void HandlePrimateRay(inout RayPayload payload, AttributeData attribs)
             {
                 uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
 
@@ -135,7 +135,7 @@
                 payload.primateNormal = v.normal;
             }
 
-            void HandleDirectDiffuseRay(inout RayPayload payload : SV_RayPayload, AttributeData attribs : SV_IntersectionAttributes)
+            void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs, bool useAlbedo, bool multiplyColor)
             {
                 uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
 
@@ -160,12 +160,19 @@
 
                 float3 texColor = _MainTex.SampleLevel(sampler_linear_repeat, v.uv * _MainTex_ST.xy, 0).rgb;
 
-                float3 albedo = texColor * _Color.xyz;
 
-                //payload.primateColor = float4(albedo, 1);
-                payload.color *= float4(1, 1, 1, 1);
-                //payload.worldPos = float4(worldPosition, 1);
-                //payload.primateNormal = v.normal;
+                if (useAlbedo)
+                {
+                    float3 albedo = texColor * _Color.xyz;
+                    if (multiplyColor)
+                    {
+                        payload.color *= float4(albedo, 1);
+                    }
+                    else
+                    {
+                        payload.color = float4(albedo, 1);
+                    }
+                }
 
                 float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
                 float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
@@ -195,7 +202,11 @@
                 }
                 else if (payload.rayType == 1)
                 {
-                    HandleDirectDiffuseRay(payload, attribs);
+                    HandleDirectDiffuseRay(payload, attribs, true, true);
+                }
+                else if (payload.rayType == 2)
+                {
+                    HandleDirectDiffuseRay(payload, attribs, true, true);
                 }
             }
 
