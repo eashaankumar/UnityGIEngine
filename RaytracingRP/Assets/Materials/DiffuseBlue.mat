@@ -32,7 +32,7 @@ Material:
     - _Glossiness: 0.5
     - _Metallic: 0
     - _Power: 1
-    - _UseEmission: 0.39
+    - _UseEmission: 0.48
     m_Colors:
     - _Color: {r: 0.015686274, g: 0.15853706, b: 1, a: 1}
     - _Emission: {r: 22.363522, g: 0, b: 1.5410836, a: 1}
