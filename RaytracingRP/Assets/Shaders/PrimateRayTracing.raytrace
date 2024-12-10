@@ -16,6 +16,7 @@ SamplerState                            sampler_linear_repeat;
 
 // Output
 RWTexture2D<float4> 					g_PrimateRayOutput;
+RWTexture2D<float4> 					g_PrimateSkyboxOutput;
 RWTexture2D<float4> 					g_PrimateNormalDepth;
 RWTexture2D<float4> 					g_DirectDiffuse;
 RWTexture2D<float4> 					g_IndirectDiffuse;
@@ -76,6 +77,7 @@ void TracePrimateRay()
     // ignore skybox, just raw albedo
 
     g_PrimateRayOutput[frameCoord] = payload.primateColor;
+    g_PrimateSkyboxOutput[frameCoord] = payload.energy;
 
     float4 normalDepth = 0;
     normalDepth.xyz = payload.primateNormal;
@@ -143,6 +145,7 @@ void TraceDirectDiffuse()
         uint bounceIndex = payload.bounceIndex;
         // hit
         // update second ray info from payload.bounceRay
+        RandomFloat01(payload.rngState);
         ray.Origin = payload.bounceRayOrigin;
         ray.Direction = payload.bounceRayDir;
         payload.rayType = 1;
@@ -157,6 +160,7 @@ void TraceDirectDiffuse()
         if (payload.bounceIndex > 1)
         {
             payload.rayType = 2;
+            RandomFloat01(payload.rngState);
             ray.Origin = payload.bounceRayOrigin;
             ray.Direction = payload.bounceRayDir;
             //payload.color = 0; // ignore any color transfers (cause we can only afford 1 indirect ray...we dont know if this point will be illuminated...otherwise you would get indirect "glow", or light even if its dark outside)
@@ -194,4 +198,6 @@ void MainRayGenShader()
     TraceDirectDiffuse();
 
     g_PrimateRayOutput[frameCoord] *= (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]) ;
+
+    g_PrimateRayOutput[frameCoord] += g_PrimateSkyboxOutput[frameCoord];
 }

@@ -191,7 +191,10 @@
                     payload.color = float4(albedo, 1);
                 }
 
-                float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
+                //float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
+                //if (dot(v.normal, diffuseRayDir) < 0) diffuseRayDir *= -1;
+
+                float3 diffuseRayDir = SampleHemisphere(v.normal, payload.rngState);
                 float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
 
                 float fresnelFactor =1;

@@ -30,6 +30,28 @@ float3 RandomUnitVector(inout uint state)
     return float3(x, y, z);
 }
 
+// cosine-weighted hemisphere
+// Credit: Wulferis
+float3 SampleHemisphere(float3 normal, inout uint rngState)
+{
+    float r1 = RandomFloat01(rngState);
+    float r2 = RandomFloat01(rngState);
+
+    float phi = 2.0f * K_PI * r1;
+    float cosTheta = sqrt(1.0f - r2);
+    float sinTheta = sqrt(r2);
+
+    float x = cos(phi) * sinTheta;
+    float y = sin(phi) * sinTheta;
+    float z = cosTheta;
+
+    float3 up = abs(normal.z) < 0.999f ? float3(0, 0, 1) : float3(1, 0, 0);
+    float3 tangent = normalize(cross(up, normal));
+    float3 bitangent = cross(normal, tangent);
+
+    return tangent * x + bitangent * y + normal * z;
+}
+
 float FresnelReflectAmountOpaque(float n1, float n2, float3 incident, float3 normal)
 {
     // Schlick's aproximation
