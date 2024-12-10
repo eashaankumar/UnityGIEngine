@@ -23,8 +23,8 @@ RWTexture2D<float4> 					g_IndirectDiffuse;
 [shader("miss")]
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
-	//payload.color = 0;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
-    payload.energy = 1;
+    // skybox wipes all albedo and energy (since each ray is locally fired)
+	payload.energy = 0; //g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0) * 3;
     payload.worldPos.w = 0;
 }
 
@@ -133,8 +133,10 @@ void TraceDirectDiffuse()
     // first lets get back to the object contact point
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
     
-    float4 directDiffuseGI = float4(0, 0, 0, 0);
-    float4 indirectDiffuseGI = float4(0, 0, 0, 0);
+    float4 directDiffuseGI = 0;
+    float4 indirectDiffuseGI = 0;
+
+    
 
     if (payload.bounceIndex > 0)
     {
@@ -143,10 +145,11 @@ void TraceDirectDiffuse()
         // update second ray info from payload.bounceRay
         ray.Origin = payload.bounceRayOrigin;
         ray.Direction = payload.bounceRayDir;
-        //payload.color = payload.primateColor;
         payload.rayType = 1;
+        payload.energy = 0;
+        //payload.color = 0;
         TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
-        directDiffuseGI = payload.color * payload.energy;
+        directDiffuseGI = payload.energy;
 
         // if we still did not hit skybox, send ANOTHER ray for INDIRECT DIFFUSE (raytype = 2)
         
@@ -155,11 +158,11 @@ void TraceDirectDiffuse()
             payload.rayType = 2;
             ray.Origin = payload.bounceRayOrigin;
             ray.Direction = payload.bounceRayDir;
-            //payload.color = 1; // ignore any color transfers (cause we can only afford 1 indirect ray...we dont know if this point will be illuminated...otherwise you would get indirect "glow", or light even if its dark outside)
+            //payload.color = 0; // ignore any color transfers (cause we can only afford 1 indirect ray...we dont know if this point will be illuminated...otherwise you would get indirect "glow", or light even if its dark outside)
             payload.energy = 0;
             // just the illuminance
             TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
-            indirectDiffuseGI = payload.color * payload.energy;            
+            indirectDiffuseGI = payload.energy;            
         }
         else
         {
@@ -191,7 +194,7 @@ void MainRayGenShader()
 
     TraceDirectDiffuse();
 
-    g_PrimateRayOutput[frameCoord] *= g_DirectDiffuse[frameCoord] + g_IndirectDiffuse[frameCoord];
+    g_PrimateRayOutput[frameCoord] = g_DirectDiffuse[frameCoord] * g_IndirectDiffuse[frameCoord];
     
     // Shadow ray
     /*float3 vecToLight = PointLightPosition - payload.worldPos.xyz;

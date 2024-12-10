@@ -3,6 +3,8 @@
     Properties
     {
         _Color("Main Color", Color) = (1, 1, 1, 1)
+        _UseEmission("Use Emission", Float) = 0
+        [HDR] _Emission("Emission", Color) = (1,1,1,1)
         _MainTex("Albedo (RGB)", 2D) = "white" {}
     }
 
@@ -64,7 +66,9 @@
 
             #pragma raytracing test
 
-            float4 _Color;            
+            float4 _Color;    
+            float4 _Emission;
+            float _UseEmission;
 
             Texture2D _MainTex;
             float4 _MainTex_ST;
@@ -135,7 +139,7 @@
                 payload.primateNormal = v.normal;
             }
 
-            void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs, bool useAlbedo, bool multiplyColor)
+            void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs)
             {
                 uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
 
@@ -160,19 +164,8 @@
 
                 float3 texColor = _MainTex.SampleLevel(sampler_linear_repeat, v.uv * _MainTex_ST.xy, 0).rgb;
 
-
-                if (useAlbedo)
-                {
-                    float3 albedo = texColor * _Color.xyz;
-                    if (multiplyColor)
-                    {
-                        payload.color *= float4(albedo, 1);
-                    }
-                    else
-                    {
-                        payload.color = float4(albedo, 1);
-                    }
-                }
+                float3 albedo = texColor * _Color.xyz;
+                payload.color = float4(albedo, 1);
 
                 float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
                 float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
@@ -185,6 +178,15 @@
                 payload.bounceRayDir = reflectedRayDir;
 
                 payload.bounceIndex += 1;
+
+                if (_UseEmission > 0)
+                {
+                    payload.energy = _Emission;
+                }
+                else
+                {
+                    payload.energy = 0;
+                }
             }
 
             [shader("closesthit")]
@@ -202,11 +204,11 @@
                 }
                 else if (payload.rayType == 1)
                 {
-                    HandleDirectDiffuseRay(payload, attribs, true, true);
+                    HandleDirectDiffuseRay(payload, attribs);
                 }
                 else if (payload.rayType == 2)
                 {
-                    HandleDirectDiffuseRay(payload, attribs, true, true);
+                    HandleDirectDiffuseRay(payload, attribs);
                 }
             }
 
