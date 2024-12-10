@@ -6,6 +6,7 @@ struct RayPayload
     float4 primateColor;
     float4 color;
     float4 worldPos;
+    float energy;
     uint bounceIndex;
     uint rayType;
     uint rngState;
