@@ -6,6 +6,8 @@
         _UseEmission("Use Emission", Float) = 0
         [HDR] _Emission("Emission", Color) = (1,1,1,1)
         _MainTex("Albedo (RGB)", 2D) = "white" {}
+        _Metallic("Metallic", Range(0.0, 1.0)) = 0
+        _Smoothness("Smoothness", Range(0.0, 1.0)) = 0
     }
 
     SubShader
@@ -69,6 +71,8 @@
             float4 _Color;    
             float4 _Emission;
             float _UseEmission;
+            float _Metallic;
+            float _Smoothness;
 
             Texture2D _MainTex;
             float4 _MainTex_ST;
@@ -133,8 +137,19 @@
 
                 float3 albedo = texColor * _Color.xyz;
 
-                payload.primateColor = float4(albedo, 1);
-                payload.color = float4(albedo, 1);
+
+                if (_UseEmission > 0)
+                {
+                    payload.energy = _Emission;
+                    payload.primateColor = _Emission;
+                }
+                else
+                {
+                    payload.energy = 0;
+                    payload.primateColor = float4(albedo, 1);
+                }
+
+                //payload.primateColor = float4(albedo, 1);
                 payload.worldPos = float4(worldPosition, 1);
                 payload.primateNormal = v.normal;
             }
@@ -165,12 +180,23 @@
                 float3 texColor = _MainTex.SampleLevel(sampler_linear_repeat, v.uv * _MainTex_ST.xy, 0).rgb;
 
                 float3 albedo = texColor * _Color.xyz;
-                payload.color = float4(albedo, 1);
+
+                if (_UseEmission > 0)
+                {
+                    payload.energy = _Emission;
+                    payload.color = normalize(_Emission);
+                }
+                else
+                {
+                    payload.energy = 0;
+                    payload.color = float4(albedo, 1);
+                }
 
                 float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
                 float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
 
-                float specularChance = 0;//lerp(_Metallic, 1, fresnelFactor * _Smoothness);
+                float fresnelFactor =1;
+                float specularChance = lerp(_Metallic, 1, fresnelFactor * _Smoothness);
                 float doSpecular = (RandomFloat01(payload.rngState) < specularChance) ? 1 : 0;
                 float3 reflectedRayDir = lerp(diffuseRayDir, specularRayDir, doSpecular);
 
@@ -178,15 +204,6 @@
                 payload.bounceRayDir = reflectedRayDir;
 
                 payload.bounceIndex += 1;
-
-                if (_UseEmission > 0)
-                {
-                    payload.energy = _Emission;
-                }
-                else
-                {
-                    payload.energy = 0;
-                }
             }
 
             [shader("closesthit")]
