@@ -141,15 +141,14 @@
                 if (_UseEmission > 0)
                 {
                     payload.energy = _Emission;
-                    payload.primateColor = _Emission;
+                    payload.color = payload.primateColor = _Emission;
                 }
                 else
                 {
                     payload.energy = 0;
-                    payload.primateColor = float4(albedo, 1);
+                    payload.color = payload.primateColor = float4(albedo, 1);
                 }
 
-                //payload.primateColor = float4(albedo, 1);
                 payload.worldPos = float4(worldPosition, 1);
                 payload.primateNormal = v.normal;
             }
@@ -184,7 +183,7 @@
                 if (_UseEmission > 0)
                 {
                     payload.energy = _Emission;
-                    payload.color = normalize(_Emission);
+                    payload.color = _Emission;
                 }
                 else
                 {

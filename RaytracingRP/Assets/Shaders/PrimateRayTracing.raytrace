@@ -133,7 +133,7 @@ void TraceDirectDiffuse()
     // first lets get back to the object contact point
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
     
-    float4 directDiffuseGI = 0;
+    float4 directDiffuseGI = payload.energy;
     float4 indirectDiffuseGI = 0;
 
     float4 allColors = payload.color;
@@ -149,7 +149,7 @@ void TraceDirectDiffuse()
         payload.energy = 0;
         //payload.color = 0;
         TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
-        directDiffuseGI = payload.energy;
+        directDiffuseGI += payload.energy;
         allColors *= payload.color;
 
         // if we still did not hit skybox, send ANOTHER ray for INDIRECT DIFFUSE (raytype = 2)
@@ -163,7 +163,8 @@ void TraceDirectDiffuse()
             payload.energy = 0;
             // just the illuminance
             TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
-            indirectDiffuseGI = (allColors + directDiffuseGI) * payload.energy ;            
+
+            indirectDiffuseGI = (allColors + directDiffuseGI) * payload.energy;            
         }
         else
         {
