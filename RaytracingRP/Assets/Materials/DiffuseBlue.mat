@@ -19,7 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: 
+  m_LockedProperties: _Metallic
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -32,11 +32,11 @@ Material:
     - _Glossiness: 0.5
     - _Metallic: 0
     - _Power: 1
-    - _Smoothness: 0.647
+    - _Smoothness: 0
     - _Specular: 0
-    - _UseEmission: 0.49
+    - _UseEmission: 0.51
     m_Colors:
     - _Color: {r: 0, g: 0.16342616, b: 1, a: 1}
-    - _Emission: {r: 0, g: 1.3786409, b: 1.9766746, a: 1}
+    - _Emission: {r: 0, g: 0.4483908, b: 29.508844, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -11,6 +11,7 @@ RaytracingAccelerationStructure g_SceneAccelStruct;
 float4x4 								g_InvViewMatrix;
 float4x4 								g_ViewMatrix;
 float                                   g_Zoom;
+float                                   g_dt;
 TextureCube<float4>                     g_EnvTex;
 SamplerState                            sampler_linear_repeat;
 
@@ -20,6 +21,8 @@ RWTexture2D<float4> 					g_PrimateSkyboxOutput;
 RWTexture2D<float4> 					g_PrimateNormalDepth;
 RWTexture2D<float4> 					g_DirectDiffuse;
 RWTexture2D<float4> 					g_IndirectDiffuse;
+RWTexture2D<float4> 					g_WorldPosBuffer;
+RWTexture2D<float4> 					g_MotionBuffer;
 
 [shader("miss")]
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
@@ -78,6 +81,14 @@ void TracePrimateRay()
 
     g_PrimateRayOutput[frameCoord] = payload.primateColor;
     g_PrimateSkyboxOutput[frameCoord] = payload.energy;
+    
+    // vel buffer calculations
+    float4 prevPos = g_WorldPosBuffer[frameCoord]; 
+    float4 pos = payload.worldPos;
+    float3 a = pos.xyz / pos.w;
+    float3 b = prevPos.xyz / prevPos.w;
+    g_MotionBuffer[frameCoord] = float4((a-b) , 1);
+    g_WorldPosBuffer[frameCoord] = payload.worldPos;
 
     float4 normalDepth = 0;
     normalDepth.xyz = payload.primateNormal;
@@ -197,7 +208,9 @@ void MainRayGenShader()
     
     TraceDirectDiffuse();
 
-    g_PrimateRayOutput[frameCoord] *= (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]) ;
+    /*g_PrimateRayOutput[frameCoord] *= (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]) ;
 
-    g_PrimateRayOutput[frameCoord] += g_PrimateSkyboxOutput[frameCoord];
+    g_PrimateRayOutput[frameCoord] += g_PrimateSkyboxOutput[frameCoord];*/
+
+    g_PrimateRayOutput[frameCoord] = g_MotionBuffer[frameCoord];
 }

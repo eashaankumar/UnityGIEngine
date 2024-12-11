@@ -10,7 +10,7 @@ public class RayTracingTest : MonoBehaviour
     private int cameraWidth = 0;
     private int cameraHeight = 0;
 
-    private RenderTexture primateRayOutput = null, primateSkyboxOutput=null, primateNormalDepth = null, directDiffuse = null, indirectDiffuse = null;     
+    private RenderTexture primateRayOutput = null, primateSkyboxOutput=null, primateNormalDepth = null, directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null;     
 
 	private UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
 
@@ -53,6 +53,12 @@ public class RayTracingTest : MonoBehaviour
 
             primateSkyboxOutput.Release();
             primateSkyboxOutput = null;
+
+            worldPosBuffer.Release();
+            worldPosBuffer = null;
+
+            motionBuffer.Release();
+            motionBuffer = null;
         }
 
         cameraWidth = 0;
@@ -70,6 +76,8 @@ public class RayTracingTest : MonoBehaviour
             CreateRT(ref directDiffuse);
             CreateRT(ref indirectDiffuse);
             CreateRT(ref primateSkyboxOutput);
+            CreateRT(ref worldPosBuffer);
+            CreateRT(ref motionBuffer);
 
             cameraWidth = Camera.main.pixelWidth;
             cameraHeight = Camera.main.pixelHeight;
@@ -124,13 +132,16 @@ public class RayTracingTest : MonoBehaviour
         rayTracingShader.SetAccelerationStructure(Shader.PropertyToID("g_SceneAccelStruct"), raytracingAccelerationStructure);
         rayTracingShader.SetMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
         rayTracingShader.SetFloat(Shader.PropertyToID("g_Zoom"), Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView * 0.5f));
-   
+        rayTracingShader.SetFloat("g_dt", Time.deltaTime);
+
         // Output
         rayTracingShader.SetTexture("g_PrimateRayOutput", primateRayOutput);
         rayTracingShader.SetTexture("g_PrimateNormalDepth", primateNormalDepth);
         rayTracingShader.SetTexture("g_DirectDiffuse", directDiffuse);
         rayTracingShader.SetTexture("g_IndirectDiffuse", indirectDiffuse);
         rayTracingShader.SetTexture("g_PrimateSkyboxOutput", primateSkyboxOutput);
+        rayTracingShader.SetTexture("g_WorldPosBuffer", worldPosBuffer);
+        rayTracingShader.SetTexture("g_MotionBuffer", motionBuffer);
 
         rayTracingShader.Dispatch("MainRayGenShader", cameraWidth, cameraHeight, 1);
 
