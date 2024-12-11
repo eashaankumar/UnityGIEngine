@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UnityTemplateProjects
+namespace DreamRaytracingRP
 {
     public class SimpleCameraController : MonoBehaviour
     {

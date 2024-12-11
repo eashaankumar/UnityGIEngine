@@ -212,5 +212,5 @@ void MainRayGenShader()
 
     g_PrimateRayOutput[frameCoord] += g_PrimateSkyboxOutput[frameCoord];*/
 
-    g_PrimateRayOutput[frameCoord] = g_MotionBuffer[frameCoord];
+    //g_PrimateRayOutput[frameCoord] = g_MotionBuffer[frameCoord];
 }

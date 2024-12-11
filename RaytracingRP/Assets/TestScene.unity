@@ -269,6 +269,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rayTracingShader: {fileID: 4807578003741378534, guid: ff0421f3959e85d43a165fccf7837be0,
     type: 3}
+  renderPasses:
+  - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
   envMap: {fileID: 8900000, guid: 656a59a5ff93c46498416d97e5c16b66, type: 3}
 --- !u!1 &591476780
 GameObject:
