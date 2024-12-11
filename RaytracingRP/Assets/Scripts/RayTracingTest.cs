@@ -14,6 +14,7 @@ namespace DreamRaytracingRP
         private int cameraHeight = 0;
 
         private RenderTexture primateRayOutput = null, primateSkyboxOutput = null, primateNormalDepth = null, directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null;
+        private RenderTexture result = null;
 
         private UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
         private DreamRenderPass.RenderData renderData;
@@ -62,6 +63,9 @@ namespace DreamRaytracingRP
 
                 motionBuffer.Release();
                 motionBuffer = null;
+
+                result.Release();
+                result = null;
             }
 
             foreach (var rp in renderPasses) rp.Dispose();
@@ -74,21 +78,9 @@ namespace DreamRaytracingRP
         {
             BuildRaytracingAccelerationStructure();
 
-            renderData = new DreamRenderPass.RenderData
-            {
-                primateRayOutput = primateRayOutput,
-                primateSkyboxOutput = primateSkyboxOutput,
-                primateNormalDepth = primateNormalDepth,
-                directDiffuse = directDiffuse,
-                indirectDiffuse = indirectDiffuse,
-                worldPosBuffer = worldPosBuffer,
-                motionBuffer = motionBuffer,
-                rtWidth = Camera.main.pixelWidth,
-                rtHeight = Camera.main.pixelHeight
-            };
 
 
-            if (cameraWidth != renderData.rtWidth || cameraHeight != renderData.rtHeight)
+            if (cameraWidth != Camera.main.pixelWidth || cameraHeight != Camera.main.pixelHeight)
             {
                 CreateRT(ref primateRayOutput);
                 CreateRT(ref primateNormalDepth);
@@ -97,9 +89,23 @@ namespace DreamRaytracingRP
                 CreateRT(ref primateSkyboxOutput);
                 CreateRT(ref worldPosBuffer);
                 CreateRT(ref motionBuffer);
+                CreateRT(ref result);
 
                 cameraWidth = Camera.main.pixelWidth;
                 cameraHeight = Camera.main.pixelHeight;
+
+                renderData = new DreamRenderPass.RenderData
+                {
+                    primateRayOutput = primateRayOutput,
+                    primateSkyboxOutput = primateSkyboxOutput,
+                    primateNormalDepth = primateNormalDepth,
+                    directDiffuse = directDiffuse,
+                    indirectDiffuse = indirectDiffuse,
+                    worldPosBuffer = worldPosBuffer,
+                    motionBuffer = motionBuffer,
+                    rtWidth = Camera.main.pixelWidth,
+                    rtHeight = Camera.main.pixelHeight
+                };
 
                 foreach (var rp in renderPasses) rp.Init(renderData.rtWidth, renderData.rtHeight);
 
@@ -169,8 +175,10 @@ namespace DreamRaytracingRP
             //Graphics.Blit(primateRayOutput, dest);
             foreach (var rp in renderPasses)
             {
-                rp.Render(renderData, dest);
+                rp.Render(renderData, result);
             }
+
+            Graphics.Blit(result, dest);
         }
     }
 }

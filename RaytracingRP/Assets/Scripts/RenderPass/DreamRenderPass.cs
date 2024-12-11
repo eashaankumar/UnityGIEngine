@@ -17,5 +17,16 @@ namespace DreamRaytracingRP.DreamRP
         public abstract void Render(RenderData renderData, RenderTexture dest);
 
         public abstract void Dispose();
+
+
+        protected void CreateRT(ref RenderTexture tex, int rtWidth, int rtHeight)
+        {
+            if (tex)
+                tex.Release();
+
+            tex = new RenderTexture(rtWidth, rtHeight, 0, RenderTextureFormat.ARGBHalf);
+            tex.enableRandomWrite = true;
+            tex.Create();
+        }
     }
 }

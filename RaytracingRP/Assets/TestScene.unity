@@ -271,6 +271,7 @@ MonoBehaviour:
     type: 3}
   renderPasses:
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
+  - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
   envMap: {fileID: 8900000, guid: 656a59a5ff93c46498416d97e5c16b66, type: 3}
 --- !u!1 &591476780
 GameObject:
