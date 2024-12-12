@@ -3,7 +3,7 @@ using UnityEngine;
 namespace DreamRaytracingRP
 {
     [CreateAssetMenu(fileName = "CompositionTest1", menuName = "DreamVox/DreamRaytracingRP/Scriptable Objects/CompositionTest1")]
-    public class Aces : DreamRP.DreamRenderPass
+    public class CompositionTest1 : DreamRP.DreamRenderPass
     {
         public ComputeShader composeDiffuse;
         public override void Dispose()

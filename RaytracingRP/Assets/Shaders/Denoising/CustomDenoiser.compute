@@ -1,0 +1,103 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> _Noisy;
+RWTexture2D<float4> _Denoised;
+RWTexture2D<float4> _NormalDepth;
+
+float _DepthFalloff;
+int _DepthBlurKernelSize;
+float _NormalFalloff;
+
+float DecodeDepth(float2 uv)
+{
+    return 1.0 / (_NormalDepth[uv].w + 1e-5);
+}
+
+float4 DepthBlur(uint2 uv)
+{
+    float centerDepth = DecodeDepth(uv);
+    float blurSize = 1;
+    float4 sum = 0;
+    float weightSum = 0;
+
+    for (int x = -_DepthBlurKernelSize; x <= _DepthBlurKernelSize; x++) {
+        for (int y = -_DepthBlurKernelSize; y <= _DepthBlurKernelSize; y++) {
+            float2 offset = float2(x,y) * blurSize;
+            float2 sampleUV = uv + offset;
+
+            // Sample color and depth
+            float4 colorSample = _Noisy[sampleUV];
+            float depthSample = DecodeDepth(sampleUV);
+
+            // Calculate depth-based weight
+            float depthDiff = abs(centerDepth - depthSample);
+            float depthWeight = exp(-depthDiff * _DepthFalloff);
+
+            sum += colorSample * depthWeight;
+            weightSum += depthWeight;
+        }
+    }
+
+    return sum / max(weightSum, 0.00001);
+}
+
+bool IsDepthOutOfBounds(float depth)
+{
+    return abs(depth) < 1e-6f || depth > 1000;
+}
+
+float4 NormalDepthVarianceBlur(uint2 uv)
+{
+    float centerDepth = DecodeDepth(uv);
+    if (IsDepthOutOfBounds(centerDepth)) return _Noisy[uv]; // ignore skybox
+
+    float3 centerNormal = _NormalDepth[uv].rgb;
+    float blurSize = 1;
+    float4 sum = 0;
+    float weightSum = 0;
+
+    for (int x = -_DepthBlurKernelSize; x <= _DepthBlurKernelSize; x+= _DepthBlurKernelSize) {
+        for (int y = -_DepthBlurKernelSize; y <= _DepthBlurKernelSize; y+= _DepthBlurKernelSize) {
+            float2 offset = float2(x, y) * blurSize;
+            float2 sampleUV = uv + offset;
+
+            // Sample color and depth
+            float4 colorSample = _Noisy[sampleUV];
+            float depthSample = DecodeDepth(sampleUV);
+
+            if (IsDepthOutOfBounds(depthSample)) continue;
+
+
+            float3 normalSample = _NormalDepth[sampleUV].rgb;
+
+            // Calculate depth-based weight
+            float normalDiff = saturate(dot(normalSample, centerNormal)); 
+            //float normalWeight = exp(-normalDiff * _NormalFalloff);
+
+            // Calculate depth-variance-based weight
+            float depthDiff = abs(centerDepth - depthSample);
+            depthDiff = depthDiff > 0.1 ? 1000 : depthDiff; // to get sharper edges (> depthDiff = smaller value in exp())
+
+            //varianceDiff = varianceDiff > 0.5 ? 1 : varianceDiff;
+            float varianceDiff = 1;
+
+            float depthVarWeight = exp((- depthDiff * _DepthFalloff + -normalDiff * _NormalFalloff) * varianceDiff);
+            sum += colorSample * depthVarWeight;
+            weightSum += depthVarWeight;
+        }
+    }
+
+    return sum / max(weightSum, 0.00001);//lerp(, _Noisy[uv], exp(-varianceLen));
+}
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    _Denoised[id.xy] = NormalDepthVarianceBlur(id.xy);
+}

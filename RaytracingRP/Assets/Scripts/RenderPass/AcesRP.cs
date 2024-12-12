@@ -1,11 +1,10 @@
 using UnityEngine;
 
-namespace DreamRaytracingRP
+namespace DreamRaytracingRP.DreamRP
 {
     [CreateAssetMenu(fileName = "AcesRP", menuName = "DreamVox/DreamRaytracingRP/Scriptable Objects/AcesRP")]
     public class AcesRP : DreamRP.DreamRenderPass
     {
-        public bool enabled;
         public ComputeShader aces;
         public override void Dispose()
         {

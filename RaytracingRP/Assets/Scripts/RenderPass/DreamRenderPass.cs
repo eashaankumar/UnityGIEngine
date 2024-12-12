@@ -5,6 +5,7 @@ namespace DreamRaytracingRP.DreamRP
     //[CreateAssetMenu(fileName = "DreamRenderPass", menuName = "Scriptable Objects/DreamRenderPass")]
     public abstract class DreamRenderPass : ScriptableObject
     {
+        public bool enabled;
         public class RenderData
         {
             public RenderTexture primateRayOutput = null,
@@ -28,5 +29,14 @@ namespace DreamRaytracingRP.DreamRP
             tex.enableRandomWrite = true;
             tex.Create();
         }
+
+        protected void ClearOutRenderTexture(RenderTexture renderTexture, Color clearColor)
+        {
+            RenderTexture rt = RenderTexture.active;
+            RenderTexture.active = renderTexture;
+            GL.Clear(true, true, clearColor);
+            RenderTexture.active = rt;
+        }
+
     }
 }
