@@ -59,8 +59,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         {
             int2 offset = int2(x, y);
             int2 uv = id.xy + offset;
+            float4 intensity = Result[uv];
             float weight = GaussianWeight(offset, 1);
-            color += weight * Result[uv];
+            color += weight * intensity;
         }
     }
     if (KernelSize / 2 > 0)

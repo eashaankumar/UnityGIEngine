@@ -1,0 +1,33 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma kernel CSMain2
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+float Threshold;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    float intensity = length(Result[id.xy]);
+    if (intensity < Threshold)
+    {
+        Result[id.xy] = 0;
+    }
+}
+
+RWTexture2D<float4> Bloomed;
+RWTexture2D<float4> Mask;
+
+[numthreads(8, 8, 1)]
+void CSMain2(uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    float maskIntensity = length(Mask[id.xy]);
+    if (maskIntensity < Threshold)
+    {
+        Result[id.xy] += Bloomed[id.xy];
+    }
+}

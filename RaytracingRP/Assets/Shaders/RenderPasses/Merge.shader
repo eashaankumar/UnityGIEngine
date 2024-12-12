@@ -3,6 +3,7 @@ Shader "Hidden/Merge"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _MipBlendPower ("Mip Blend Power", Float) = 1
     }
     SubShader
     {
@@ -39,6 +40,7 @@ Shader "Hidden/Merge"
 
             sampler2D _MainTex;
             int _MipCount;
+            float _MipBlendPower;
 
             fixed4 frag(v2f i) : SV_Target
             {
@@ -48,6 +50,7 @@ Shader "Hidden/Merge"
                 {
                     fixed4 c = tex2Dlod(_MainTex, float4(i.uv, 0, m));
                     float weight = m + 1;
+                    if (m > 0) weight = pow(weight, 1/_MipBlendPower);
                     col += c / weight;
                 }
                 return col;
