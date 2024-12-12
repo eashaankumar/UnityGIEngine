@@ -51,6 +51,7 @@ namespace DreamRaytracingRP.DreamRP
             tex.enableRandomWrite = true;
             tex.useMipMap = true;
             tex.autoGenerateMips = false;
+            tex.filterMode = FilterMode.Bilinear;
             tex.Create();
         }
 

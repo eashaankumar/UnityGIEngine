@@ -50,7 +50,7 @@ Shader "Hidden/Merge"
                 {
                     fixed4 c = tex2Dlod(_MainTex, float4(i.uv, 0, m));
                     float weight = m + 1;
-                    if (m > 0) weight = pow(weight, 1/_MipBlendPower);
+                     weight = pow(weight, 1/_MipBlendPower);
                     col += c / weight;
                 }
                 return col;

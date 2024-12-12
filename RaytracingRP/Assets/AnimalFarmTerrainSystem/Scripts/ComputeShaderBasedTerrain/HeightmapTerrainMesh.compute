@@ -1,0 +1,35 @@
+#pragma kernel CSMain
+
+struct Voxel
+{
+    int voxelX, voxelY;
+    float noise;
+};
+
+RWTexture2D<float> NoiseTex;
+float MaxHeight;
+AppendStructuredBuffer<Voxel> Voxels;
+int2 ChunkId;
+int NumVoxelsPerAxis;
+float VoxelSize;
+
+int TriIndex(int2 localId)
+{
+    return (localId.x * NumVoxelsPerAxis) + localId.y;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= NumVoxelsPerAxis + 1) return;
+    if (id.y >= NumVoxelsPerAxis + 1) return;
+
+    uint2 actualId = id.xy + ChunkId * NumVoxelsPerAxis;
+    Voxel voxel;
+    voxel.voxelX = id.x;
+    voxel.voxelY = id.y;
+    voxel.noise = NoiseTex[actualId];
+
+    Voxels.Append(voxel); 
+
+}

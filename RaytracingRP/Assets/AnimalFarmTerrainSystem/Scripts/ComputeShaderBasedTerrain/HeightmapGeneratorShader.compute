@@ -1,0 +1,27 @@
+#include "FastNoiseLite.hlsl"
+
+#pragma kernel CSMain
+
+RWTexture2D<float> NoiseTex;
+int Seed;
+int Octaves;
+float Frequency;
+
+float GetMountainNoise(float2 position) {
+    fnl_state noise = fnlCreateState();
+    noise.frequency = Frequency;
+    noise.noise_type = FNL_NOISE_OPENSIMPLEX2S;
+    noise.fractal_type = FNL_FRACTAL_RIDGED;
+    noise.octaves = Octaves;
+    noise.seed = Seed;
+    float fbmNoise = fnlGetNoise2D(noise, position.x, position.y);
+    return clamp(fbmNoise, -1.0f, 1.0f);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    
+    NoiseTex[id.xy] = GetMountainNoise(id.xy);
+}

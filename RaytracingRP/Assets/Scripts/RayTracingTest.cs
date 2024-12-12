@@ -33,6 +33,12 @@ namespace DreamRaytracingRP
             }
         }
 
+        public void RebuildRTAS()
+        {
+            raytracingAccelerationStructure.Dispose();
+            raytracingAccelerationStructure=null;
+        }
+
         private void ReleaseResources()
         {
             if (raytracingAccelerationStructure != null)

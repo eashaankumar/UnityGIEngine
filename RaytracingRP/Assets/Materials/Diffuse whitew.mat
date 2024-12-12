@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Hidden_Merge
-  m_Shader: {fileID: 4800000, guid: 1487738f3895e924d8be5a94357eafa6, type: 3}
+  m_Name: Diffuse whitew
+  m_Shader: {fileID: 4800000, guid: 5db8375383e233a4db344244830266c8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,7 +29,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _MipBlendPower: 0.48
-    m_Colors: []
+    - _Glossiness: 0.5
+    - _Metallic: 0
+    - _Power: 1
+    - _Smoothness: 0
+    - _Specular: 0
+    - _UseEmission: -1.39
+    m_Colors:
+    - _Color: {r: 0.39712024, g: 1, b: 0.3726415, a: 1}
+    - _Emission: {r: 0, g: 0.080527164, b: 0.46107563, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
