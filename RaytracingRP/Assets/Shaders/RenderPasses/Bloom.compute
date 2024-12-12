@@ -26,7 +26,7 @@ void CSMain2(uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
     float maskIntensity = length(Mask[id.xy]);
-    if (maskIntensity < Threshold)
+    if (maskIntensity <= Threshold)
     {
         Result[id.xy] += Bloomed[id.xy];
     }

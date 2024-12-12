@@ -28,7 +28,7 @@ RWTexture2D<float4> 					g_MotionBuffer;
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
     // skybox wipes all albedo and energy (since each ray is locally fired)
-	payload.energy = 0.1;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0) * 2;
+	payload.energy = 0;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
