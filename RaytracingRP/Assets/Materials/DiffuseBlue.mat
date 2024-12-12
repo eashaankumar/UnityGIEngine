@@ -32,11 +32,11 @@ Material:
     - _Glossiness: 0.5
     - _Metallic: 0
     - _Power: 1
-    - _Smoothness: 0
+    - _Smoothness: 1
     - _Specular: 0
     - _UseEmission: 0.23
     m_Colors:
     - _Color: {r: 0, g: 0.16342616, b: 1, a: 1}
-    - _Emission: {r: 0, g: 0.1479138, b: 9.734288, a: 1}
+    - _Emission: {r: 0, g: 0.7108184, b: 45.254833, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

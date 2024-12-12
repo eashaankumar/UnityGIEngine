@@ -1,0 +1,70 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+int KernelSize;
+
+float Variance(int2 id)
+{
+    int n = KernelSize * KernelSize;
+    float4 avg = 0;
+    for (int x = -KernelSize / 2; x <= KernelSize / 2; x++)
+    {
+        for (int y = -KernelSize / 2; y <= KernelSize / 2; y++)
+        {
+            int2 offset = int2(x, y);
+            int2 uv = id.xy + offset;
+            avg += Result[uv.xy];
+        }
+    }
+    avg /= n;
+
+    float4 variance = 0;
+
+    for (int x = -KernelSize / 2; x <= KernelSize / 2; x++)
+    {
+        for (int y = -KernelSize / 2; y <= KernelSize / 2; y++)
+        {
+            int2 offset = int2(x, y);
+            int2 uv = id.xy + offset;
+
+            float4 xi = Result[uv.xy];
+            float4 diff = xi - avg;
+            variance += diff * diff;
+        }
+    }
+    return variance / (n - 1);
+}
+
+float GaussianWeight(int2 localId, float variance)
+{
+    float num1 = (localId.x * localId.x) + (localId.y * localId.y);
+    float den1 = 2 * variance;
+    float ex = exp(-num1 / den1);
+
+    return ex / (2 * 3.1415925 * variance);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    float4 color = 0;
+    //float var = Variance(id.xy);
+    for (int x = -KernelSize / 2; x <= KernelSize / 2; x++)
+    {
+        for (int y = -KernelSize / 2; y <= KernelSize / 2; y++)
+        {
+            int2 offset = int2(x, y);
+            int2 uv = id.xy + offset;
+            float weight = GaussianWeight(offset, 1);
+            color += weight * Result[uv];
+        }
+    }
+    if (KernelSize / 2 > 0)
+    {
+        Result[id.xy] = color;
+    }
+}

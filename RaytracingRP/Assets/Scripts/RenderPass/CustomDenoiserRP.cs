@@ -8,8 +8,8 @@ namespace DreamRaytracingRP.DreamRP
     {
         public ComputeShader customDenoiser;
         [SerializeField] float depthFallOff;
-        [SerializeField] uint depthBlurKernelSize;
         [SerializeField] float normalFallOff;
+        [SerializeField] int blurPasses;
 
         RenderTexture temp;
 
@@ -34,7 +34,7 @@ namespace DreamRaytracingRP.DreamRP
             if (renderData.indirectDiffuse == null) return;
             if (renderData.primateNormalDepth == null) return;
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < blurPasses; i++)
             {
                 int kernelSize = 1 << i;
                 this.ClearOutRenderTexture(temp, Color.clear);
@@ -46,6 +46,7 @@ namespace DreamRaytracingRP.DreamRP
 
         void DenoiseNoisy(ref RenderTexture rt, ref RenderTexture normalDepth, int rtW, int rtH, int kernelSize)
         {
+            if (!enabled) return;
             customDenoiser.SetTexture(0, "_Denoised", temp); // temp tex
             customDenoiser.SetTexture(0, "_Noisy", rt);
             customDenoiser.SetTexture(0, "_NormalDepth", normalDepth);

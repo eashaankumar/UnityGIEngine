@@ -14,3 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabled: 1
   customDenoiser: {fileID: 7200000, guid: b6cd40062a659974ba9783483ced3901, type: 3}
+  depthFallOff: 11.49
+  normalFallOff: -13.74
+  blurPasses: 4
