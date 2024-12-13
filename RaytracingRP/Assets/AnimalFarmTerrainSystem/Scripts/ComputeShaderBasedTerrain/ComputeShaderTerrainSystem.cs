@@ -21,7 +21,8 @@ namespace AnimalFarmTerrainSystem
         [SerializeField, Min(1)] int octaves;
         [SerializeField, Min(1)] float spread;
         [SerializeField] Material material;
-        
+        [SerializeField] UnityEngine.Experimental.Rendering.RayTracingMode rayTracingMode;
+
         public RenderTexture _noiseTex;
 
         public UnityEvent ChunksLoaded;
@@ -111,7 +112,7 @@ namespace AnimalFarmTerrainSystem
                     go.transform.position = new Vector3(x, 0, y) * chunkSize;
                     mr.sharedMaterial = material;
                     mf.sharedMesh = new Mesh();
-                    mr.rayTracingMode = UnityEngine.Experimental.Rendering.RayTracingMode.DynamicGeometry;
+                    mr.rayTracingMode = rayTracingMode;
                     mr.rayTracingAccelerationStructureBuildFlags = UnityEngine.Rendering.RayTracingAccelerationStructureBuildFlags.PreferFastTrace;
                     Mesh mesh = mf.sharedMesh;
 

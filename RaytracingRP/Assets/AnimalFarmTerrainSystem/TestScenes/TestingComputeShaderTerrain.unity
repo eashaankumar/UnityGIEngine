@@ -93,7 +93,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 11e25d72c58175440b4fa6ead8e6dceb, type: 2}
+  m_LightingDataAsset: {fileID: 112000000, guid: 11e25d72c58175440b4fa6ead8e6dceb,
+    type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -470,9 +471,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63e282d22ca4b4d489e8371d74fd8509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainGeneratorShader: {fileID: 7200000, guid: 8425b54d2b6f47b42b2f0fd9c71c4b25, type: 3}
+  terrainGeneratorShader: {fileID: 7200000, guid: 8425b54d2b6f47b42b2f0fd9c71c4b25,
+    type: 3}
   meshGenShader: {fileID: 7200000, guid: 2fd95a9392b27e243b1706222906904f, type: 3}
-  numChunks: {x: 50, y: 50}
+  numChunks: {x: 10, y: 10}
   chunkSize: 100
   numVoxelsPerAxis: 64
   maxHeight: 500
@@ -481,6 +483,9 @@ MonoBehaviour:
   spread: 5000
   material: {fileID: 2100000, guid: f429923292800aa47aba16415769c9e8, type: 2}
   _noiseTex: {fileID: 0}
+  ChunksLoaded:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

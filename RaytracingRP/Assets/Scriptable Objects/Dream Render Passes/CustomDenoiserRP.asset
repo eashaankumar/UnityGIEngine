@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e5b0a8ded73a864bb1fe9f7e7797038, type: 3}
   m_Name: CustomDenoiserRP
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   customDenoiser: {fileID: 7200000, guid: b6cd40062a659974ba9783483ced3901, type: 3}
   depthFallOff: 11.49
-  normalFallOff: 1.39
+  normalFallOff: 3.89
   blurPasses: 4
