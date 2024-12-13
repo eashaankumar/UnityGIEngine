@@ -24,11 +24,18 @@ RWTexture2D<float4> 					g_IndirectDiffuse;
 RWTexture2D<float4> 					g_WorldPosBuffer;
 RWTexture2D<float4> 					g_MotionBuffer;
 
+float lerp(float a, float b, float f)
+{
+    return a * (1.0 - f) + (b * f);
+}
+
 [shader("miss")]
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
     // skybox wipes all albedo and energy (since each ray is locally fired)
-	payload.energy = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
+    float3 dir = -WorldRayDirection();
+    float d = saturate(dot(dir, float3(0, 1, 0)));
+	payload.energy = float4(dir * 0.5 + 0.5, 1);//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 

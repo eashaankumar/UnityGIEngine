@@ -18,8 +18,8 @@ MonoBehaviour:
   mergeMaterial: {fileID: 2100000, guid: 30ead601025eec243bc356303dcf1eca, type: 2}
   gaussianBlurKernel: 5
   mips: 10
-  threshold: 3.36
-  bloomIntensity: 0.6
+  threshold: 3.01
+  bloomIntensity: 1
   mipmap: {fileID: 0}
   mask: {fileID: 0}
   bloomed: {fileID: 0}

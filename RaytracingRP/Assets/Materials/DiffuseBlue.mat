@@ -34,9 +34,9 @@ Material:
     - _Power: 1
     - _Smoothness: 1
     - _Specular: 0
-    - _UseEmission: 0.01
+    - _UseEmission: -0.31
     m_Colors:
-    - _Color: {r: 0, g: 0.16470623, b: 1, a: 1}
-    - _Emission: {r: 0.7490197, g: 0.7490197, b: 0.7490197, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Emission: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
