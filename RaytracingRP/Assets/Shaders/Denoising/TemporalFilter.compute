@@ -1,0 +1,62 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Current;
+RWTexture2D<float4> Accumulated;
+RWTexture2D<float4> MotionVectors;
+RWTexture2D<float4> WorldPos;
+RWTexture2D<float> HistoryBuffer;
+
+int _RTWidth;
+int _RTHeight;
+
+float4x4 _CameraProj;
+
+float2 WorldToCamPos(float3 worldPos)
+{
+    // Map world position into camera's projected coordinates.
+    float4 projected = mul(_CameraProj, float4(worldPos, 1.0f));
+
+    // Perform perspective divide and adjust range
+    // from NDC's -1...1 to UV space's 0...1
+    float2 uv = (projected.xy / projected.w) * 0.5f + 0.5f;
+
+    return 1-uv;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    float3 prevWorldPos = MotionVectors[id.xy].rgb;
+    float3 currentWorldPos = WorldPos[id.xy].rgb;
+
+    float2 prevWorldPosUV = WorldToCamPos(prevWorldPos);
+    float2 currWorldPosUV = WorldToCamPos(currentWorldPos);
+    float2 motionVecUV = currWorldPosUV - prevWorldPosUV;
+
+    float2 prevUV = float2(prevWorldPosUV.x * _RTWidth, prevWorldPosUV.y * _RTHeight);
+    float4 acc = Accumulated[prevUV];
+    float4 curr = Current[id.xy];
+
+    bool couldRetrieve = length(curr) > 1e-7f; //
+    float alpha = 0.5;
+    float HistoryLength = HistoryBuffer[id.xy];
+    if (couldRetrieve)
+    {
+        HistoryLength = HistoryLength + 1;
+        alpha = 1.0 / HistoryLength;
+    }
+    else
+    {
+        alpha = 1;
+        HistoryLength = 1;
+    }
+
+   
+    Current[id.xy] = lerp(acc, curr, alpha);
+    Accumulated[id.xy] = curr;
+    HistoryBuffer[id.xy] = HistoryLength;
+}

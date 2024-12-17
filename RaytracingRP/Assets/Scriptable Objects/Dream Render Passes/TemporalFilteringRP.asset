@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e5b0a8ded73a864bb1fe9f7e7797038, type: 3}
-  m_Name: CustomDenoiserRP
+  m_Script: {fileID: 11500000, guid: 9a53509b58081bc46a02c3906fcb514f, type: 3}
+  m_Name: TemporalFilteringRP
   m_EditorClassIdentifier: 
-  enabled: 0
-  customDenoiser: {fileID: 7200000, guid: b6cd40062a659974ba9783483ced3901, type: 3}
-  depthFallOff: 8.75
-  normalFallOff: -17.35
-  blurPasses: 2
+  enabled: 1
+  m_temporalFilterCS: {fileID: 7200000, guid: 8110a3d1fb7de7c4e8bca9a3d8853a94, type: 3}

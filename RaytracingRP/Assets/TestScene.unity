@@ -137,7 +137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &18219030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,7 +153,7 @@ MonoBehaviour:
   terrainGeneratorShader: {fileID: 7200000, guid: 8425b54d2b6f47b42b2f0fd9c71c4b25,
     type: 3}
   meshGenShader: {fileID: 7200000, guid: 2fd95a9392b27e243b1706222906904f, type: 3}
-  numChunks: {x: 50, y: 50}
+  numChunks: {x: 10, y: 10}
   chunkSize: 100
   numVoxelsPerAxis: 64
   maxHeight: 500
@@ -342,6 +342,7 @@ MonoBehaviour:
   rayTracingShader: {fileID: 4807578003741378534, guid: ff0421f3959e85d43a165fccf7837be0,
     type: 3}
   renderPasses:
+  - {fileID: 11400000, guid: 1f9d4a8a2b8e6614d99df81b8d158947, type: 2}
   - {fileID: 11400000, guid: f04174d0eb6dec44d950bf5cfd551f53, type: 2}
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}

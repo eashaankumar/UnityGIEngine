@@ -72,6 +72,7 @@ namespace DreamRaytracingRP
 
                 result.Release();
                 result = null;
+
             }
 
             foreach (var rp in renderPasses) rp.Dispose();
@@ -166,6 +167,7 @@ namespace DreamRaytracingRP
             rayTracingShader.SetMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
             rayTracingShader.SetFloat(Shader.PropertyToID("g_Zoom"), Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView * 0.5f));
             rayTracingShader.SetFloat("g_dt", Time.deltaTime);
+            //rayTracingShader.SetInt("g_seed", (int)UnityEngine.Random.Range(0, uint.MaxValue));
 
             // Output
             rayTracingShader.SetTexture("g_PrimateRayOutput", primateRayOutput);
@@ -178,7 +180,6 @@ namespace DreamRaytracingRP
 
             rayTracingShader.Dispatch("MainRayGenShader", cameraWidth, cameraHeight, 1);
 
-            //Graphics.Blit(primateRayOutput, dest);
             foreach (var rp in renderPasses)
             {
                 rp.Render(renderData, result);
