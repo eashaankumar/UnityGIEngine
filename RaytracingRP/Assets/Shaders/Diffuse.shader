@@ -150,7 +150,7 @@
                 }
 
                 payload.worldPos = float4(worldPosition, 1);
-                payload.primateNormal = v.normal;
+                payload.primateNormal = faceNormal;
                 payload.bounceIndex += 1;
             }
 

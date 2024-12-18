@@ -79,7 +79,8 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
     DecodeNormalDepth(pixelId, normalP, depthP);
 
     // normal
-    float weightNormal = pow(max(dot(normalCenter, normalP), 0), phiNormal);
+    float dotProd = max(dot(normalCenter, normalP), 0);
+    float weightNormal = pow(dotProd, phiNormal);
     weightNormal = max(weightNormal, 1e-10);
 
     // depth

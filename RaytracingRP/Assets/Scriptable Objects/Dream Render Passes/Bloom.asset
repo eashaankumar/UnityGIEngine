@@ -19,7 +19,7 @@ MonoBehaviour:
   gaussianBlurKernel: 5
   mips: 9
   threshold: 2.73
-  bloomIntensity: 0.46
+  bloomIntensity: 0.31
   mipmap: {fileID: 0}
   mask: {fileID: 0}
   bloomed: {fileID: 0}
