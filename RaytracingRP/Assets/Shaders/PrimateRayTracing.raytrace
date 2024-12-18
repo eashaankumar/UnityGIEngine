@@ -36,7 +36,7 @@ void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
     // skybox wipes all albedo and energy (since each ray is locally fired)
     float3 dir = -WorldRayDirection();
     float d = saturate(dot(dir, float3(0, 1, 0)));
-	payload.energy = 0;//float4(dir * 0.5 + 0.5, 1);//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
+	payload.energy = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
@@ -96,8 +96,8 @@ void TracePrimateRay()
     // vel buffer calculations
     float4 prevPos = g_WorldPosBuffer[frameCoord]; 
     float4 pos = payload.worldPos;
-    float3 a = pos.xyz / pos.w;
-    float3 b = prevPos.xyz / prevPos.w;
+    //float3 a = pos.xyz / pos.w;
+    //float3 b = prevPos.xyz / prevPos.w;
     g_MotionBuffer[frameCoord] = prevPos;//float4((a-b) , 1);
     g_WorldPosBuffer[frameCoord] = pos;
 

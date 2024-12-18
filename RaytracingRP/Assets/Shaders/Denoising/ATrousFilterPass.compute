@@ -66,12 +66,13 @@ void DecodeNormalDepth(float2 id, inout float3 normal, inout float depth)
 {
     float4 data = _NormalDepth[id];
     normal = data.xyz;
-    depth = 1.0 / data.w;
+    if (data.w < 1e-6) depth = 0;
+    else depth = 1.0 / data.w;
 }
 
 float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCenter, float3 normalCenter, float depthCenter)
 {
-    if (IsSkybox(pixelId.xy)) return 0;
+    //if (IsSkybox(pixelId.xy)) return 0;
 
     float3 normalP;
     float depthP;
@@ -102,7 +103,7 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
 
     //return weightNormal;
     float weightIllum = exp(( -max(weightLillum, 0.0) - max(weightZ, 0.0))) * weightNormal;
-    return weightNormal * weightZ * weightLillum;
+    return weightZ * weightNormal * weightLillum;
 }
 
 

@@ -17,4 +17,6 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     int2 frameCoord = id.xy;
 
     g_Result[frameCoord] = g_Albedo[frameCoord] * (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]) + g_PrimateSkyboxOutput[frameCoord];
+
+    //g_Result[frameCoord] = g_IndirectDiffuse[frameCoord];
 }
