@@ -343,6 +343,7 @@ MonoBehaviour:
     type: 3}
   renderPasses:
   - {fileID: 11400000, guid: 92a4d8cb45d1f2e4c89baa21ea6351c0, type: 2}
+  - {fileID: 11400000, guid: 92a4d8cb45d1f2e4c89baa21ea6351c0, type: 2}
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}
   - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
