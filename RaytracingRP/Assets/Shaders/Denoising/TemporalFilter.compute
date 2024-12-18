@@ -7,6 +7,7 @@ RWTexture2D<float4> Current;
 RWTexture2D<float4> Accumulated;
 RWTexture2D<float4> MotionVectors;
 RWTexture2D<float4> WorldPos;
+RWTexture2D<float4> Skybox;
 RWTexture2D<float> HistoryBuffer;
 
 int _RTWidth;
@@ -26,9 +27,15 @@ float2 WorldToCamPos(float3 worldPos)
     return 1-uv;
 }
 
+float mix(float x, float y, float a)
+{
+    return x * (1.0 - a) + y * a;
+}
+
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+    //if (length(Skybox[id.xy]) > 0) return;
     // TODO: insert actual code here!
     float3 prevWorldPos = MotionVectors[id.xy].rgb;
     float3 currentWorldPos = WorldPos[id.xy].rgb;
@@ -37,16 +44,18 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float2 currWorldPosUV = WorldToCamPos(currentWorldPos);
     float2 motionVecUV = currWorldPosUV - prevWorldPosUV;
 
-    float2 prevUV = float2(prevWorldPosUV.x * _RTWidth, prevWorldPosUV.y * _RTHeight);
+    float2 motionVecMapped = float2(motionVecUV.x * _RTWidth, motionVecUV.y * _RTHeight);
+    float2 prevUV = id.xy - motionVecMapped.xy;
+    //if (length(Skybox[prevUV]) >= 0) return;
     float4 acc = Accumulated[prevUV];
     float4 curr = Current[id.xy];
 
-    bool couldRetrieve = length(curr) > 1e-7f; //
-    float alpha = 0.5;
+    bool couldRetrieve = length(currentWorldPos) > 0 && length(prevWorldPosUV) > 0;//length(curr) > 1e-7f; //
+    float alpha = 0;
     float HistoryLength = HistoryBuffer[id.xy];
     if (couldRetrieve)
     {
-        HistoryLength = HistoryLength + 1;
+        HistoryLength = min(5000, HistoryLength + 1);
         alpha = 1.0 / HistoryLength;
     }
     else
@@ -54,9 +63,11 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         alpha = 1;
         HistoryLength = 1;
     }
-
-   
-    Current[id.xy] = lerp(acc, curr, alpha);
+    
+    //if (length(Skybox[prevUV]) > 0) acc = 1;
+    
+    // float4(prevUV.x/ (float)_RTWidth, prevUV.y / (float)_RTHeight, 0, 1);
+    Current[id.xy] = mix(acc, curr, alpha);
     Accumulated[id.xy] = curr;
     HistoryBuffer[id.xy] = HistoryLength;
 }

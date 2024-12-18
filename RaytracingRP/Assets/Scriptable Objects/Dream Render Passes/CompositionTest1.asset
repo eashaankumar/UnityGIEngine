@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99d77a706815e4547b358d11f941ef3b, type: 3}
   m_Name: CompositionTest1
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   composeDiffuse: {fileID: 7200000, guid: dad6ec3eac055e74e9c14fe92d8bcbcf, type: 3}

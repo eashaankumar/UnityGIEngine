@@ -1,0 +1,120 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+// https://research.nvidia.com/sites/default/files/pubs/2017-07_Spatiotemporal-Variance-Guided-Filtering%3A//svgf_preprint.pdf
+
+RWTexture2D<float4> _Denoised;
+RWTexture2D<float4> _Noisy;
+RWTexture2D<float4> _NormalDepth;
+RWTexture2D<float4> _Skybox;
+
+int Step;
+float phiNormal;
+
+float3 CamPos;
+float3 CamDir;
+float4x4 _CameraProj;
+
+float2 WorldToClip(float3 worldPos)
+{
+    // Map world position into camera's projected coordinates.
+    float4 projected = mul(_CameraProj, float4(worldPos, 1.0f));
+
+    // Perform perspective divide and adjust range
+    // NDC's -1...1 
+    float2 clip = (projected.xy / projected.w);
+
+    return -clip;
+}
+
+/*float CalculateLuminance(float3 color)
+{
+    return 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
+}
+
+void CalculateMoment(float3 color, float2 prevMoments, float alpha, inout float2 moments)
+{
+    moments.x = CalculateLuminance(color);
+    moments.y = moments.r * moments.r;
+    moments = lerp(prevMoments, moments, Alpha);
+}*/
+
+float KernelWeight(int i)
+{
+    i = abs(i);
+    if (i == 0) return 3.0 / 8.0;
+    if (i == 1) return 1.0 / 4.0;
+    if (i == 2) return 1.0 / 16.0;
+    return 0;
+}
+
+void DecodeNormalDepth(float2 id, inout float3 normal, inout float depth) 
+{
+    float4 data = _NormalDepth[id];
+    normal = data.xyz;
+    depth = 1.0 / data.w;
+}
+
+float CalculateEdgeStoppingWeight(float2 pixelId, float3 normalCenter, float depthCenter)
+{
+    float3 normalP;
+    float depthP;
+    DecodeNormalDepth(pixelId, normalP, depthP);
+
+    // normal
+    float weightNormal = pow(max(dot(normalCenter, normalP), 0), phiNormal);
+
+    // depth
+    float3 centerPixelWorldPos = CamPos + CamDir * depthCenter;
+    float3 otherPixelWorldPos = CamPos + CamDir * depthP;
+
+    float2 zCenter = WorldToClip(centerPixelWorldPos);
+    float2 zPixel = WorldToClip(otherPixelWorldPos);
+
+    float Numerator = abs((zCenter.x - zPixel.x));
+    float Denominator = max(abs(zCenter.y), 1e-8f) * Step; //Here, sigma_z is 1, and step represends (p-q) : the distance between the 2 pixels.
+    float weightZ = exp(-(Numerator / Denominator));
+    weightZ = exp(-abs(depthCenter - depthP));
+
+    //return weightNormal;
+    float weightLillum = 0;
+    float weightIllum = exp(0.0 - max(weightLillum, 0.0) - max(weightZ, 0.0)) * weightNormal;
+    return weightIllum;
+}
+
+bool IsSkybox(int2 id)
+{
+    float4 col = _Skybox[id.xy];
+    return col.x > 0 || col.y > 0 || col.z > 0;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (IsSkybox(id.xy)) return;
+    
+    float4 sumColor = 0;
+    float sumWeight = 0;
+
+    float3 normalCenter;
+    float depthCenter;
+    DecodeNormalDepth(id.xy, normalCenter, depthCenter);
+
+    for (int x = -2; x <= 2; x++)
+    {
+        for (int y = -2; y <= 2; y++)
+        {
+            float2 CurrentCoord = id.xy + int2(x, y) * Step;
+            float kernelWeight = (KernelWeight(x) + KernelWeight(y)) / 2;
+            float edgeStoppingWeight = CalculateEdgeStoppingWeight(CurrentCoord, normalCenter, depthCenter);
+            float pixelWeight = kernelWeight *edgeStoppingWeight;
+
+            sumColor += pixelWeight * _Noisy[CurrentCoord.xy];
+            sumWeight += pixelWeight;
+        }
+    }
+    _Denoised[id.xy] = sumColor / sumWeight;
+}

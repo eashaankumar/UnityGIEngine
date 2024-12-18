@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a53509b58081bc46a02c3906fcb514f, type: 3}
-  m_Name: TemporalFilteringRP
+  m_Script: {fileID: 11500000, guid: 92321dff9c6ce1b429918db9817062b4, type: 3}
+  m_Name: ATrousFilterPass
   m_EditorClassIdentifier: 
-  enabled: 0
-  m_temporalFilterCS: {fileID: 7200000, guid: 8110a3d1fb7de7c4e8bca9a3d8853a94, type: 3}
+  enabled: 1
+  atrousShader: {fileID: 7200000, guid: 6d499a668ec760647b25dd88d91db593, type: 3}
+  passes: 5
+  phiNormal: 7.21

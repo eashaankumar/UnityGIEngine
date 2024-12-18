@@ -88,8 +88,11 @@ void TracePrimateRay()
     // ignore skybox, just raw albedo
 
     g_PrimateRayOutput[frameCoord] = payload.primateColor;
-    g_PrimateSkyboxOutput[frameCoord] = payload.energy;
-    
+    if (payload.bounceIndex == 0)
+        g_PrimateSkyboxOutput[frameCoord] = payload.energy;
+    else
+        g_PrimateSkyboxOutput[frameCoord] = 0;
+
     // vel buffer calculations
     float4 prevPos = g_WorldPosBuffer[frameCoord]; 
     float4 pos = payload.worldPos;
@@ -102,6 +105,7 @@ void TracePrimateRay()
     normalDepth.xyz = payload.primateNormal;
     normalDepth.w = 1.0 / distance(payload.worldPos.xyz, rayOrigin);
     g_PrimateNormalDepth[frameCoord] = normalDepth;
+    
 }
 
 void TraceDirectDiffuse()
