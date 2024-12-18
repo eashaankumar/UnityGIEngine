@@ -16,4 +16,4 @@ MonoBehaviour:
   customDenoiser: {fileID: 7200000, guid: b6cd40062a659974ba9783483ced3901, type: 3}
   depthFallOff: 2.6
   normalFallOff: -34.39
-  blurPasses: 3
+  blurPasses: 7

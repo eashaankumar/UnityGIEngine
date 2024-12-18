@@ -75,8 +75,9 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
 
     // normal
     float weightNormal = pow(max(dot(normalCenter, normalP), 0), phiNormal);
-
     weightNormal = max(weightNormal, 1e-10);
+
+    //weightNormal /= depthP;
 
     // depth
     float3 centerPixelWorldPos = CamPos + CamDir * depthCenter;
@@ -86,16 +87,16 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
     float2 zPixel = WorldToClip(otherPixelWorldPos);
 
     float Numerator = abs((zCenter.x - zPixel.x));
-    float Denominator = max(abs(zCenter.y), 1e-8f) * pixDst; //Here, sigma_z is 1, and step represends (p-q) : the distance between the 2 pixels.
+    float Denominator = max(abs(zCenter.y), 1e-8f) * pixDst;
     float weightZ = exp(-(Numerator / Denominator));
-    weightZ = exp(-abs(depthCenter - depthP));
+    weightZ = exp(-abs(depthCenter- depthP));
 
     // luminance
     float luminPix = CalculateLuminance(_Noisy[pixelId.xy]);
     float weightLillum = exp(-abs(luminCenter - luminPix));
 
     //return weightNormal;
-    float weightIllum = exp(0.0 - max(weightLillum, 0.0) - max(weightZ, 0.0)) * weightNormal;
+    float weightIllum = exp(( -max(weightLillum, 0.0) - max(weightZ, 0.0))) * weightNormal;
     return weightIllum;
 }
 
@@ -119,8 +120,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         {
             float2 CurrentCoord = id.xy + int2(x, y) * Step;
             float kernelWeight = (KernelWeight(x) + KernelWeight(y)) / 2;
-            float edgeStoppingWeight = CalculateEdgeStoppingWeight(CurrentCoord, x*x + y*y , luminCenter, normalCenter, depthCenter);
-            float pixelWeight = kernelWeight *edgeStoppingWeight;
+            float pixDst = length(int2(x, y) * Step);
+            float edgeStoppingWeight = CalculateEdgeStoppingWeight(CurrentCoord, pixDst, luminCenter, normalCenter, depthCenter);
+            float pixelWeight = kernelWeight * edgeStoppingWeight;
 
             sumColor += pixelWeight * _Noisy[CurrentCoord.xy];
             sumWeight += pixelWeight;

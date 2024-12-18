@@ -38,7 +38,7 @@ namespace DreamRaytracingRP.DreamRP
             for (int i = 0; i < passes; i++)
             {
                 int kernelStep = 1 << i;
-                Debug.Log(kernelStep);
+                //kernelStep = Mathf.Min(kernelStep, 8);
                 this.ClearOutRenderTexture(temp, Color.clear);
                 DenoiseNoisy(ref renderData.directDiffuse, ref renderData.primateNormalDepth, ref renderData.primateSkyboxOutput, renderData.rtWidth, renderData.rtHeight, kernelStep);
                 this.ClearOutRenderTexture(temp, Color.clear);
