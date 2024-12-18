@@ -15,4 +15,4 @@ MonoBehaviour:
   enabled: 1
   atrousShader: {fileID: 7200000, guid: 6d499a668ec760647b25dd88d91db593, type: 3}
   passes: 5
-  phiNormal: 37.1
+  phiNormal: 50
