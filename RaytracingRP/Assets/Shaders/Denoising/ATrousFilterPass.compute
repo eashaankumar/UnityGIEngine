@@ -10,6 +10,7 @@ RWTexture2D<float4> _Denoised;
 RWTexture2D<float4> _Noisy;
 RWTexture2D<float4> _NormalDepth;
 RWTexture2D<float4> _Skybox;
+RWTexture2D<float4> _Emissive;
 
 int Step;
 float phiNormal;
@@ -70,6 +71,13 @@ void DecodeNormalDepth(float2 id, inout float3 normal, inout float depth)
     else depth = 1.0 / data.w;
 }
 
+float4 NoisyInput(float2 id)
+{
+    float4 emissive = _Emissive[id.xy];
+    if (length(emissive) > 0) return 0;
+    return _Noisy[id.xy];
+}
+
 float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCenter, float3 normalCenter, float depthCenter)
 {
     //if (IsSkybox(pixelId.xy)) return 0;
@@ -96,16 +104,16 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
 
     float depthDiff = abs(depthCenter - depthP);
     depthDiff = min(depthDiff, 10);
+    //if (depthDiff > 1 && depthCenter < 10) weightNormal = 0;
     float weightZ = exp(-depthDiff);
 
     // luminance
-    float luminPix = CalculateLuminance(_Noisy[pixelId.xy]);
+    float luminPix = CalculateLuminance(NoisyInput(pixelId.xy));
     float weightLillum = exp(-abs(luminCenter - luminPix));
-    weightLillum = 0;
     //return weightNormal;
     float weightIllum = exp(( -max(weightLillum, 0.0) - max(weightZ, 0.0))) * weightNormal; // better at denoising farther stuff
     float mine = weightLillum * weightZ * weightNormal; // better at denoising closer stuff
-    return  weightIllum; // depthCenter > 100 ? (weightIllum + mine) / 2 : mine;
+    return weightIllum; // depthCenter > 100 ? (weightIllum + mine) / 2 : mine;
 }
 
 
@@ -120,7 +128,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float3 normalCenter;
     float depthCenter;
     DecodeNormalDepth(id.xy, normalCenter, depthCenter);
-    float luminCenter = CalculateLuminance(_Noisy[id.xy]);
+    float luminCenter = CalculateLuminance(NoisyInput(id.xy));
 
     for (int x = -2; x <= 2; x++)
     {
@@ -132,7 +140,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             float edgeStoppingWeight = CalculateEdgeStoppingWeight(CurrentCoord, pixDst, luminCenter, normalCenter, depthCenter);
             float pixelWeight = kernelWeight * edgeStoppingWeight;
 
-            sumColor += pixelWeight * _Noisy[CurrentCoord.xy];
+            sumColor += pixelWeight * NoisyInput(CurrentCoord.xy);
             sumWeight += pixelWeight;
         }
     }

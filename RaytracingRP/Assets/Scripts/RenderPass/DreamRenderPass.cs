@@ -10,7 +10,8 @@ namespace DreamRaytracingRP.DreamRP
         {
             public RenderTexture primateRayOutput = null,
                 primateSkyboxOutput = null,
-                primateNormalDepth = null, directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null;
+                primateNormalDepth = null, directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null,
+                emissive = null;
             public int rtWidth;
             public int rtHeight;
         }

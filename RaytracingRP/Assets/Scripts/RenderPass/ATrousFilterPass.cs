@@ -40,19 +40,20 @@ namespace DreamRaytracingRP.DreamRP
                 int kernelStep = 1 << i;
                 //kernelStep = Mathf.Min(kernelStep, 8);
                 this.ClearOutRenderTexture(temp, Color.clear);
-                DenoiseNoisy(ref renderData.directDiffuse, ref renderData.primateNormalDepth, ref renderData.primateSkyboxOutput, renderData.rtWidth, renderData.rtHeight, kernelStep);
+                DenoiseNoisy(ref renderData.directDiffuse, ref renderData.primateNormalDepth, ref renderData.primateSkyboxOutput, ref renderData.emissive, renderData.rtWidth, renderData.rtHeight, kernelStep);
                 this.ClearOutRenderTexture(temp, Color.clear);
-                DenoiseNoisy(ref renderData.indirectDiffuse, ref renderData.primateNormalDepth, ref renderData.primateSkyboxOutput, renderData.rtWidth, renderData.rtHeight, kernelStep);
+                DenoiseNoisy(ref renderData.indirectDiffuse, ref renderData.primateNormalDepth, ref renderData.primateSkyboxOutput, ref renderData.emissive, renderData.rtWidth, renderData.rtHeight, kernelStep);
             }
         }
 
-        void DenoiseNoisy(ref RenderTexture rt, ref RenderTexture normalDepth, ref RenderTexture skybox, int rtW, int rtH, int kernelStep)
+        void DenoiseNoisy(ref RenderTexture rt, ref RenderTexture normalDepth, ref RenderTexture skybox, ref RenderTexture emissive, int rtW, int rtH, int kernelStep)
         {
             if (!enabled) return;
             atrousShader.SetTexture(0, "_Denoised", temp); // temp tex
             atrousShader.SetTexture(0, "_Noisy", rt);
             atrousShader.SetTexture(0, "_NormalDepth", normalDepth);
             atrousShader.SetTexture(0, "_Skybox", skybox);
+            atrousShader.SetTexture(0, "_Emissive", emissive);
             atrousShader.SetInt("Step", kernelStep);
             atrousShader.SetFloat("phiNormal", phiNormal);
             var viewProjection = camera.nonJitteredProjectionMatrix * camera.transform.worldToLocalMatrix;

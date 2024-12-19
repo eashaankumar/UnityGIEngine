@@ -28,6 +28,7 @@ namespace DreamRaytracingRP
             composeDiffuse.SetTexture(0, "g_DirectDiffuse", renderData.directDiffuse);
             composeDiffuse.SetTexture(0, "g_IndirectDiffuse", renderData.indirectDiffuse);
             composeDiffuse.SetTexture(0, "g_PrimateSkyboxOutput", renderData.primateSkyboxOutput);
+            composeDiffuse.SetTexture(0, "g_Emissive", renderData.emissive);
 
             int threadGroupsX = Mathf.CeilToInt(renderData.rtWidth / 8.0f);
             int threadGroupsY = Mathf.CeilToInt(renderData.rtHeight / 8.0f);

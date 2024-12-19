@@ -15,7 +15,9 @@ namespace DreamRaytracingRP
         private int cameraWidth = 0;
         private int cameraHeight = 0;
 
-        private RenderTexture primateRayOutput = null, primateSkyboxOutput = null, primateNormalDepth = null, directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null;
+        private RenderTexture primateRayOutput = null, primateSkyboxOutput = null, primateNormalDepth = null, 
+            directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null,
+            emissive = null;
         private RenderTexture result = null;
 
         private UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
@@ -75,6 +77,9 @@ namespace DreamRaytracingRP
                 result.Release();
                 result = null;
 
+                emissive.Release();
+                emissive = null;
+
             }
 
             foreach (var rp in renderPasses) rp.Dispose();
@@ -99,6 +104,7 @@ namespace DreamRaytracingRP
                 CreateRT(ref worldPosBuffer);
                 CreateRT(ref motionBuffer);
                 CreateRT(ref result);
+                CreateRT(ref emissive);
 
                 cameraWidth = Camera.main.pixelWidth;
                 cameraHeight = Camera.main.pixelHeight;
@@ -112,6 +118,7 @@ namespace DreamRaytracingRP
                     indirectDiffuse = indirectDiffuse,
                     worldPosBuffer = worldPosBuffer,
                     motionBuffer = motionBuffer,
+                    emissive = emissive,
                     rtWidth = Camera.main.pixelWidth,
                     rtHeight = Camera.main.pixelHeight
                 };
@@ -181,6 +188,7 @@ namespace DreamRaytracingRP
             rayTracingShader.SetTexture("g_PrimateSkyboxOutput", primateSkyboxOutput);
             rayTracingShader.SetTexture("g_WorldPosBuffer", worldPosBuffer);
             rayTracingShader.SetTexture("g_MotionBuffer", motionBuffer);
+            rayTracingShader.SetTexture("g_Emissive", emissive);
 
             rayTracingShader.Dispatch("MainRayGenShader", cameraWidth, cameraHeight, 1);
 

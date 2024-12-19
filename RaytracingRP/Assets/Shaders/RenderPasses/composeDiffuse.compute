@@ -8,6 +8,7 @@ RWTexture2D<float4> g_Albedo;
 RWTexture2D<float4> g_DirectDiffuse;
 RWTexture2D<float4> g_IndirectDiffuse;
 RWTexture2D<float4> g_PrimateSkyboxOutput;
+RWTexture2D<float4> g_Emissive;
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -16,6 +17,10 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     int2 frameCoord = id.xy;
 
-    g_Result[frameCoord] = g_Albedo[frameCoord] * (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]) + g_PrimateSkyboxOutput[frameCoord];
+    float4 combinedLighting = (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]);
+
+    float4 finalColor = (g_Albedo[frameCoord]) * combinedLighting + g_PrimateSkyboxOutput[frameCoord] + g_Emissive[frameCoord];
+
+    g_Result[frameCoord] = finalColor;
 
 }

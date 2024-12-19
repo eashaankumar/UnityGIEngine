@@ -26,6 +26,7 @@ RWTexture2D<float4> 					g_DirectDiffuse;
 RWTexture2D<float4> 					g_IndirectDiffuse;
 RWTexture2D<float4> 					g_WorldPosBuffer;
 RWTexture2D<float4> 					g_MotionBuffer;
+RWTexture2D<float4> 					g_Emissive;
 
 float lerp(float a, float b, float f)
 {
@@ -117,6 +118,8 @@ void TracePrimateRay()
     normalDepth.xyz = payload.primateNormal;
     normalDepth.w = 1.0 / distance(payload.worldPos.xyz, rayOrigin);
     g_PrimateNormalDepth[frameCoord] = normalDepth;
+
+    g_Emissive[frameCoord] = payload.energy;
     
 }
 
@@ -175,6 +178,7 @@ void TraceDirectDiffuse(inout float4 directDiffuseGI, inout float4 indirectDiffu
 
     float4 allColors = payload.color;
 
+
     if (payload.bounceIndex > 0)
     {
         uint bounceIndex = payload.bounceIndex;
@@ -214,7 +218,6 @@ void TraceDirectDiffuse(inout float4 directDiffuseGI, inout float4 indirectDiffu
     {
         directDiffuseGI = float4(0, 0, 0, 0);
     }
-
     // ignore actual skybox, just the light emitted by the skybox which is touhcing surface
 }
 
@@ -241,7 +244,7 @@ void MainRayGenShader()
         directDiffuseGI += directDiffuseGITemp;
         indirectDiffuseGI += indirectDiffuseGITemp;
     }
-    g_DirectDiffuse[frameCoord] = directDiffuseGI / spp;
+    g_DirectDiffuse[frameCoord] = directDiffuseGI / spp - g_Emissive[frameCoord];
     g_IndirectDiffuse[frameCoord] = indirectDiffuseGI / spp;
 
 }
