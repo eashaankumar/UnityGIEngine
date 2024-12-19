@@ -101,11 +101,11 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
     // luminance
     float luminPix = CalculateLuminance(_Noisy[pixelId.xy]);
     float weightLillum = exp(-abs(luminCenter - luminPix));
-
+    weightLillum = 0;
     //return weightNormal;
     float weightIllum = exp(( -max(weightLillum, 0.0) - max(weightZ, 0.0))) * weightNormal; // better at denoising farther stuff
     float mine = weightLillum * weightZ * weightNormal; // better at denoising closer stuff
-    return  weightIllum * weightZ; // depthCenter > 100 ? (weightIllum + mine) / 2 : mine;
+    return  weightIllum; // depthCenter > 100 ? (weightIllum + mine) / 2 : mine;
 }
 
 

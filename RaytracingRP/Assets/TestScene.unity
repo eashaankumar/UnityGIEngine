@@ -339,11 +339,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f424bac4b9e217149932c520466eea37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sunDir: {fileID: 749200763}
   rayTracingShader: {fileID: 4807578003741378534, guid: ff0421f3959e85d43a165fccf7837be0,
     type: 3}
   renderPasses:
   - {fileID: 11400000, guid: 92a4d8cb45d1f2e4c89baa21ea6351c0, type: 2}
-  - {fileID: 11400000, guid: 92a4d8cb45d1f2e4c89baa21ea6351c0, type: 2}
+  - {fileID: 11400000, guid: 7f0ce54ac702d68498d12fb18a6ee2f4, type: 2}
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}
   - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
@@ -781,6 +782,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 738190960}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &749200762
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 749200763}
+  m_Layer: 0
+  m_Name: Sun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &749200763
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749200762}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.2484966, y: -0, z: -0, w: 0.96863276}
+  m_LocalPosition: {x: -37.869133, y: 642.1399, z: 298.55154}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 28.777, y: 0, z: 0}
 --- !u!1 &1003238480
 GameObject:
   m_ObjectHideFlags: 0
@@ -823,3 +855,4 @@ SceneRoots:
   - {fileID: 58920018}
   - {fileID: 1003238481}
   - {fileID: 18219031}
+  - {fileID: 749200763}

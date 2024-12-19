@@ -6,6 +6,8 @@ namespace DreamRaytracingRP
     [ExecuteInEditMode]
     public class RayTracingTest : MonoBehaviour
     {
+        public Transform sunDir;
+        public float sunIntensity;
         public UnityEngine.Rendering.RayTracingShader rayTracingShader = null;
         public DreamRenderPass[] renderPasses;
         public Cubemap envMap = null;
@@ -167,6 +169,8 @@ namespace DreamRaytracingRP
             rayTracingShader.SetMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
             rayTracingShader.SetFloat(Shader.PropertyToID("g_Zoom"), Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView * 0.5f));
             rayTracingShader.SetFloat("g_dt", Time.deltaTime);
+            rayTracingShader.SetFloat("g_SunIntensity", sunIntensity);
+            rayTracingShader.SetVector("g_SunDir", sunDir.transform.forward);
             //rayTracingShader.SetInt("g_seed", (int)UnityEngine.Random.Range(0, uint.MaxValue));
 
             // Output

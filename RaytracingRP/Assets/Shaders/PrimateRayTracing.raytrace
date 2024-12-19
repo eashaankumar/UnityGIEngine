@@ -10,8 +10,10 @@
 RaytracingAccelerationStructure g_SceneAccelStruct;
 float4x4 								g_InvViewMatrix;
 float4x4 								g_ViewMatrix;
+float3                                  g_SunDir;
 float                                   g_Zoom;
 float                                   g_dt;
+float                                   g_SunIntensity;
 int                                     g_seed;
 TextureCube<float4>                     g_EnvTex;
 SamplerState                            sampler_linear_repeat;
@@ -34,9 +36,19 @@ float lerp(float a, float b, float f)
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
     // skybox wipes all albedo and energy (since each ray is locally fired)
-    float3 dir = -WorldRayDirection();
-    float d = saturate(dot(dir, float3(0, 1, 0)));
-	payload.energy = 0;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
+    float3 dir = WorldRayDirection();
+    float d = saturate(dot(dir, g_SunDir));
+    float4 light =0;
+    float sunsize = 0.5;
+    if (d > 0)
+    {
+        if (d > 1-sunsize)
+        {
+            light = lerp(0, 1, 1.0-(1-sunsize)/d) * g_SunIntensity;
+        }
+    }
+
+	payload.energy = light;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
@@ -108,7 +120,7 @@ void TracePrimateRay()
     
 }
 
-void TraceDirectDiffuse()
+void TraceDirectDiffuse(inout float4 directDiffuseGI, inout float4 indirectDiffuseGI)
 {
     // Direct Diffuse (Sunlight only)
     int2 launchIndex = uint2(DispatchRaysIndex().x, DispatchRaysDimensions().y - DispatchRaysIndex().y - 1);
@@ -158,8 +170,8 @@ void TraceDirectDiffuse()
     // first lets get back to the object contact point
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, missShaderIndex, ray, payload);
     
-    float4 directDiffuseGI = payload.energy;
-    float4 indirectDiffuseGI = 0;
+    directDiffuseGI = payload.energy;
+    indirectDiffuseGI = 0;
 
     float4 allColors = payload.color;
 
@@ -204,9 +216,6 @@ void TraceDirectDiffuse()
     }
 
     // ignore actual skybox, just the light emitted by the skybox which is touhcing surface
-
-    g_DirectDiffuse[frameCoord] = directDiffuseGI;
-    g_IndirectDiffuse[frameCoord] = indirectDiffuseGI;
 }
 
 [shader("raygeneration")]
@@ -218,11 +227,21 @@ void MainRayGenShader()
     float2 frameCoord = float2(LaunchIndex.x, LaunchDim.y - LaunchIndex.y - 1) + float2(0.5, 0.5);
     TracePrimateRay();
     
-    TraceDirectDiffuse();
+    float4 directDiffuseGI;
+    float4 indirectDiffuseGI;
 
-    /*g_PrimateRayOutput[frameCoord] *= (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]) ;
+    int spp = 4;
 
-    g_PrimateRayOutput[frameCoord] += g_PrimateSkyboxOutput[frameCoord];*/
+    for(int i = 0; i < spp; i++)
+    {
+        float4 directDiffuseGITemp;
+        float4 indirectDiffuseGITemp;
+        TraceDirectDiffuse(directDiffuseGITemp, indirectDiffuseGITemp);
 
-    //g_PrimateRayOutput[frameCoord] = g_MotionBuffer[frameCoord];
+        directDiffuseGI += directDiffuseGITemp;
+        indirectDiffuseGI += indirectDiffuseGITemp;
+    }
+    g_DirectDiffuse[frameCoord] = directDiffuseGI / spp;
+    g_IndirectDiffuse[frameCoord] = indirectDiffuseGI / spp;
+
 }
