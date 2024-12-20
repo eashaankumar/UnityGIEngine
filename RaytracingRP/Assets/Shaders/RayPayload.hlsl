@@ -10,7 +10,8 @@ struct RayPayload
     uint bounceIndex;
     uint rayType;
     uint rngState;
-    uint didHitSpecular;
+    float didHitSpecular;
+    float specular;
 };
 
 struct RayPayloadShadow
