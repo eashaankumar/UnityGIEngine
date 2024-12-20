@@ -132,7 +132,7 @@ void TracePrimateRay()
         payload.color = 0;
         payload.bounceIndex = 0;
         TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, payload);
-        g_PrimateRayOutput[frameCoord] = payload.primateColor + payload.energy;
+        g_PrimateRayOutput[frameCoord] *= (payload.primateColor + payload.energy);
     }
 }
 
