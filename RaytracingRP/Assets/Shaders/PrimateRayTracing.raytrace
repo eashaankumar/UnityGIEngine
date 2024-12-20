@@ -49,18 +49,18 @@ void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
         }
     }
 
-	payload.energy = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
+	payload.energy = light;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
-/*[shader("miss")]
+[shader("miss")]
 void MainMissShader2_Shadow(inout RayPayloadShadow payload : SV_RayPayload)
 {
     // The ray "hit" the light.
 	payload.shadowValue = 1;//1.0;
-}*/
+}
 
-void TracePrimateRay()
+void TracePrimateRay(inout float shadowVal)
 {
     uint2 LaunchIndex = DispatchRaysIndex().xy;
     uint2 LaunchDim = DispatchRaysDimensions().xy;
@@ -122,8 +122,10 @@ void TracePrimateRay()
 
     g_Emissive[frameCoord] = payload.energy;
 
+    bool didHit = payload.bounceIndex > 0;
+    float3 firstHitPos = payload.worldPos.xyz;
     // relfection albedo
-    if (payload.didHitSpecular > 0.0)
+    if (didHit * payload.didHitSpecular > 0.0)
     {
         ray.Origin = payload.bounceRayOrigin;
         ray.Direction = payload.bounceRayDir;
@@ -134,6 +136,29 @@ void TracePrimateRay()
         payload.specular = 0;
         TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, payload);
         g_PrimateRayOutput[frameCoord] *= lerp((payload.color + payload.energy), 1.0, payload.specular) + lerp((payload.color + payload.energy), 1.0, 1.0-payload.specular);
+    }
+
+    shadowVal = 1;
+    // shadow ray
+    if (didHit)
+    {
+        RayDesc shadowRay;
+        shadowRay.Origin = firstHitPos + -g_SunDir * 0.1; // K_RAY_ORIGIN_PUSH_OFF
+        shadowRay.Direction = g_SunDir;
+        shadowRay.TMin = 0;
+        shadowRay.TMax = 10000000;
+        
+        RayPayloadShadow payloadShadow;
+        payloadShadow.shadowValue = 0.7;
+    
+        const uint missShaderForShadowRay = 1;
+        TraceRay(g_SceneAccelStruct, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 0, 1, missShaderForShadowRay, shadowRay, payloadShadow);
+
+        if (payload.worldPos.w == 1)
+        {
+            g_PrimateRayOutput[frameCoord] *= payloadShadow.shadowValue;
+            shadowVal = 0;
+        }
     }
 }
 
@@ -242,7 +267,8 @@ void MainRayGenShader()
     uint2 LaunchDim = DispatchRaysDimensions().xy;
 
     float2 frameCoord = float2(LaunchIndex.x, LaunchDim.y - LaunchIndex.y - 1) + float2(0.5, 0.5);
-    TracePrimateRay();
+    float shadowValue;
+    TracePrimateRay(shadowValue);
     
     float4 directDiffuseGI;
     float4 indirectDiffuseGI;
@@ -257,7 +283,7 @@ void MainRayGenShader()
         directDiffuseGI += directDiffuseGITemp;
         indirectDiffuseGI += indirectDiffuseGITemp;
     }
-    g_DirectDiffuse[frameCoord] = directDiffuseGI / spp - g_Emissive[frameCoord];
+    g_DirectDiffuse[frameCoord] = (directDiffuseGI / spp - g_Emissive[frameCoord]);
     g_IndirectDiffuse[frameCoord] = indirectDiffuseGI / spp;
 
 }
