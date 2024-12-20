@@ -110,6 +110,23 @@
                 return v;
             }
 
+            float ReflectedRay(inout float3 bounceRayOrigin, inout float3 bounceRayDir, inout uint rngState, float3 faceNormal, float3 worldPosition)
+            {
+                float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(rngState));
+
+                //float3 diffuseRayDir = SampleHemisphere(v.normal, payload.rngState);
+                float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
+
+                float fresnelFactor = 1;
+                float specularChance = lerp(_Metallic, 1, fresnelFactor * _Smoothness);
+                float doSpecular = (RandomFloat01(rngState) < specularChance) ? 1 : 0;
+                float3 reflectedRayDir = lerp(diffuseRayDir, specularRayDir, doSpecular);
+
+                bounceRayOrigin = worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal;
+                bounceRayDir = reflectedRayDir;
+                return doSpecular;
+            }
+
             void HandlePrimateRay(inout RayPayload payload, AttributeData attribs)
             {
                 uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
@@ -152,6 +169,13 @@
                 payload.worldPos = float4(worldPosition, 1);
                 payload.primateNormal = faceNormal;
                 payload.bounceIndex += 1;
+
+                uint rng = 0;
+                if (ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, rng, faceNormal, worldPosition) > 0)
+                {
+                    payload.didHitSpecular = 1;
+                }
+                
             }
 
             void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs)
@@ -192,19 +216,7 @@
                     payload.color = float4(albedo, 1);
                 }
 
-                float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(payload.rngState));
-                //if (dot(v.normal, diffuseRayDir) < 0) diffuseRayDir *= -1;
-
-                //float3 diffuseRayDir = SampleHemisphere(v.normal, payload.rngState);
-                float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
-
-                float fresnelFactor =1;
-                float specularChance = lerp(_Metallic, 1, fresnelFactor * _Smoothness);
-                float doSpecular = (RandomFloat01(payload.rngState) < specularChance) ? 1 : 0;
-                float3 reflectedRayDir = lerp(diffuseRayDir, specularRayDir, doSpecular);
-
-                payload.bounceRayOrigin = worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal;
-                payload.bounceRayDir = reflectedRayDir;
+                ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, payload.rngState, faceNormal, worldPosition);
 
                 payload.bounceIndex += 1;
             }

@@ -49,7 +49,7 @@ void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
         }
     }
 
-	payload.energy = light;//g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
+	payload.energy = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0);
     payload.worldPos.w = 0;
 }
 
@@ -95,7 +95,8 @@ void TracePrimateRay()
     payload.color = float4(0, 0, 0, 0);
     payload.worldPos = float4(0, 0, 0, 1);
 	payload.bounceIndex = 0;
-    
+    payload.didHitSpecular = 0;
+
     TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, payload);
 
     // ignore skybox, just raw albedo
@@ -120,7 +121,19 @@ void TracePrimateRay()
     g_PrimateNormalDepth[frameCoord] = normalDepth;
 
     g_Emissive[frameCoord] = payload.energy;
-    
+
+    // relfection albedo
+    if (payload.didHitSpecular > 0)
+    {
+        ray.Origin = payload.bounceRayOrigin;
+        ray.Direction = payload.bounceRayDir;
+        payload.rayType = 0;
+        payload.energy = 0;
+        payload.color = 0;
+        payload.bounceIndex = 0;
+        TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, payload);
+        g_PrimateRayOutput[frameCoord] = payload.primateColor + payload.energy;
+    }
 }
 
 void TraceDirectDiffuse(inout float4 directDiffuseGI, inout float4 indirectDiffuseGI)
@@ -233,8 +246,7 @@ void MainRayGenShader()
     float4 directDiffuseGI;
     float4 indirectDiffuseGI;
 
-    int spp = 4;
-
+    int spp = 2;
     for(int i = 0; i < spp; i++)
     {
         float4 directDiffuseGITemp;
