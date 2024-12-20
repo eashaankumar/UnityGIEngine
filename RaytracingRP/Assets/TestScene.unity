@@ -346,6 +346,7 @@ MonoBehaviour:
   renderPasses:
   - {fileID: 11400000, guid: 92a4d8cb45d1f2e4c89baa21ea6351c0, type: 2}
   - {fileID: 11400000, guid: 7f0ce54ac702d68498d12fb18a6ee2f4, type: 2}
+  - {fileID: 11400000, guid: a675e9dcdae3d3548840732b8afa3a9c, type: 2}
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
   - {fileID: 11400000, guid: 1f9d4a8a2b8e6614d99df81b8d158947, type: 2}
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}

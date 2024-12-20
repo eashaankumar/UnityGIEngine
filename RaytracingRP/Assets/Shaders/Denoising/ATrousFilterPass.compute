@@ -103,9 +103,9 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
     //float weightZ = exp(-(Numerator / Denominator));
 
     float depthDiff = abs(depthCenter - depthP);
-    depthDiff = min(depthDiff, 10);
+    depthDiff = min(depthDiff, 100);
     //if (depthDiff > 1 && depthCenter < 10) weightNormal = 0;
-    float weightZ = exp(-depthDiff);
+    float weightZ = exp(-depthDiff * 1);
 
     // luminance
     float luminPix = CalculateLuminance(NoisyInput(pixelId.xy));
