@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DiffuseBlue 1
+  m_Name: DiffuseBlue 2
   m_Shader: {fileID: 4800000, guid: 5db8375383e233a4db344244830266c8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -36,7 +36,7 @@ Material:
     - _Specular: 0
     - _UseEmission: 8.5
     m_Colors:
-    - _Color: {r: 1, g: 0.5707547, b: 0.5707547, a: 1}
-    - _Emission: {r: 23.968636, g: 0, b: 0, a: 1}
+    - _Color: {r: 0, g: 0.19104338, b: 1, a: 1}
+    - _Emission: {r: 0, g: 1.2471697, b: 23.968628, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

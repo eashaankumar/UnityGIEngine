@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DiffuseBlue 1
+  m_Name: DiffuseBlue 3
   m_Shader: {fileID: 4800000, guid: 5db8375383e233a4db344244830266c8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -24,19 +24,19 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Glossiness: 0.5
-    - _Metallic: 0.747
+    - _Metallic: 1
     - _Power: 1
-    - _Smoothness: 0.461
+    - _Smoothness: 0.416
     - _Specular: 0
-    - _UseEmission: 8.5
+    - _UseEmission: -8.85
     m_Colors:
-    - _Color: {r: 1, g: 0.5707547, b: 0.5707547, a: 1}
-    - _Emission: {r: 23.968636, g: 0, b: 0, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Emission: {r: 0, g: 0.15589622, b: 2.9960785, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
