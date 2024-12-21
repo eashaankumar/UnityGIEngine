@@ -213,6 +213,9 @@
                 payload.worldPos = float4(worldPosition, 1);
                 payload.bounceIndex += 1;
                 payload.didHitSpecular = 0;
+
+                payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
+                payload.bounceRayDir = faceNormal;
             }
 
             void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs)
@@ -238,30 +241,13 @@
 
                 faceNormal = isFrontFace ? faceNormal : -faceNormal;
 
-                float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);
-
-                RayDesc ray;
-                //float3 worldPosFinal;
-
-                /*if (payload.bounceIndex < 1)
-                {
-                    payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
-                }*/
-
-                //payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
+                //float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);                
 
                 payload.energy = 0;
                 payload.color.xyz = _Color.xyz;
-
-                float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
-
-
-                payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * specularRayDir, 1);
-                payload.bounceRayDir = specularRayDir;
+                payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
+                payload.bounceRayDir = faceNormal;
                 payload.bounceIndex += 1;
-
-                //ray.Origin = worldPosition + 0.01f * reflectedRay;
-                //ray.Direction = reflectedRay;
             }
 
           
