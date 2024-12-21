@@ -175,7 +175,7 @@
 
                 worldPosFinal = reflRayPayload.worldPos;
                 float3 specColor = 0;
-                float3 combinedColors = reflRayPayload.energy;
+                float3 combinedColors = 0;// reflRayPayload.energy;
                 return (lerp(refrRayPayload.color.xyz, reflRayPayload.color.xyz, kr) + specColor) * _Color.xyz + combinedColors;
             }
 
