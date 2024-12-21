@@ -175,7 +175,8 @@
 
                 worldPosFinal = reflRayPayload.worldPos;
                 float3 specColor = 0;
-                return (lerp(refrRayPayload.color.xyz, reflRayPayload.color.xyz, kr) + specColor) * _Color.xyz;
+                float3 combinedColors = reflRayPayload.energy;
+                return (lerp(refrRayPayload.color.xyz, reflRayPayload.color.xyz, kr) + specColor) * _Color.xyz + combinedColors;
             }
 
             void HandlePrimateRay(inout RayPayload payload, AttributeData attribs)

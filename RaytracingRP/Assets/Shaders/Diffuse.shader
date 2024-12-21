@@ -8,6 +8,7 @@
         _MainTex("Albedo (RGB)", 2D) = "white" {}
         _Metallic("Metallic", Range(0.0, 1.0)) = 0
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0
+        _MagicValue("Magic Value", Range(0.0, 1.0)) = 0
     }
 
     SubShader
@@ -73,6 +74,7 @@
             float _UseEmission;
             float _Metallic;
             float _Smoothness;
+            float _MagicValue;
 
             Texture2D _MainTex;
             float4 _MainTex_ST;
@@ -145,7 +147,7 @@
                 float3 e1 = v2.position - v0.position;
 
                 //      float3 faceNormal = normalize(mul(cross(e0, e1), (float3x3)WorldToObject()));
-                float3 faceNormal = normalize(mul(v.normal, (float3x3)WorldToObject()));
+                float3 faceNormal = normalize(mul(lerp(v.normal, normalize(cross(e0, e1)), _MagicValue), (float3x3)WorldToObject()));
 
                 bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
                 faceNormal = (isFrontFace == false) ? -faceNormal : faceNormal;
@@ -196,7 +198,7 @@
                 float3 e1 = v2.position - v0.position;
 
                 //      float3 faceNormal = normalize(mul(cross(e0, e1), (float3x3)WorldToObject()));
-                float3 faceNormal = normalize(mul(v.normal, (float3x3)WorldToObject()));
+                float3 faceNormal = normalize(mul(lerp(v.normal, normalize(cross(e0, e1)), _MagicValue), (float3x3)WorldToObject()));
 
                 bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
                 faceNormal = (isFrontFace == false) ? -faceNormal : faceNormal;

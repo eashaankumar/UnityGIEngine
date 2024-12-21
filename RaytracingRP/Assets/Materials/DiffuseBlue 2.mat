@@ -30,13 +30,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _Glossiness: 0.5
+    - _MagicValue: 0
     - _Metallic: 0.747
     - _Power: 1
     - _Smoothness: 0.461
     - _Specular: 0
-    - _UseEmission: 0.71
+    - _UseEmission: 0.86
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 0, b: 0, a: 1}
     - _Emission: {r: 0, g: 0.7677231, b: 14.754423, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

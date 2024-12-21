@@ -345,7 +345,11 @@ MonoBehaviour:
     type: 3}
   renderPasses:
   - {fileID: 11400000, guid: 92a4d8cb45d1f2e4c89baa21ea6351c0, type: 2}
+  - {fileID: 11400000, guid: 7f0ce54ac702d68498d12fb18a6ee2f4, type: 2}
+  - {fileID: 11400000, guid: a675e9dcdae3d3548840732b8afa3a9c, type: 2}
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
+  - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}
+  - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
   envMap: {fileID: 8900000, guid: 656a59a5ff93c46498416d97e5c16b66, type: 3}
 --- !u!1 &80004435
 GameObject:
@@ -984,8 +988,8 @@ Transform:
   m_GameObject: {fileID: 1772034114}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.38, y: 2.07, z: 0.29}
-  m_LocalScale: {x: 2.15, y: 2.15, z: 2.15}
+  m_LocalPosition: {x: -4.38, y: 0.39, z: 0.29}
+  m_LocalScale: {x: 0.53, y: 0.53, z: 0.53}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1003238481}
@@ -1063,7 +1067,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1772034114}
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -2432090755550338912, guid: 0afc37b6df89f5c448bb4ef0fecad81f, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

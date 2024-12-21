@@ -30,6 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Glossiness: 0.5
+    - _MagicValue: 0
     - _Metallic: 1
     - _Power: 1
     - _Smoothness: 0.416
