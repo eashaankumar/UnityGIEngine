@@ -174,7 +174,6 @@
                 if (ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, rng, faceNormal, worldPosition))
                 {
                     payload.didHitSpecular = 1;
-                    //payload.specular = _Metallic * _Smoothness;
                 }
                 
             }

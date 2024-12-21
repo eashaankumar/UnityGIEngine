@@ -208,14 +208,18 @@
                     payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
                 }
 
+                
                 payload.primateColor.xyz = payload.color.xyz;
                 payload.primateNormal = faceNormal;
                 payload.worldPos = float4(worldPosition, 1);
-                payload.bounceIndex += 1;
                 payload.didHitSpecular = 0;
 
+                payload.energy = 0;
+                payload.color.xyz = _Color.xyz;
                 payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
                 payload.bounceRayDir = faceNormal;
+                payload.bounceIndex += 1;
+                
             }
 
             void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs)
