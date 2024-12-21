@@ -138,13 +138,15 @@
                 // kt = 1 - kr;
             }
 
-            float3 TraceGlassRay(in float3 faceNormal, in float refractiveIndex, in float3 worldPosition, inout RayPayload payload, inout RayDesc ray, inout float3 worldPosFinal)
+            float3 TraceGlassRay(in float3 faceNormal, in float refractiveIndex, in float3 worldPosition, 
+                inout RayPayload payload, inout RayDesc ray, inout float3 worldPosFinal,
+                inout float3 refractedRay, inout float3 reflectedRay)
             {
                 float kr;
                 fresnel(WorldRayDirection(), faceNormal, _RefractiveIndex, kr);
 
-                float3 refractedRay = refract(WorldRayDirection(), faceNormal, refractiveIndex);
-                float3 reflectedRay = reflect(WorldRayDirection(), faceNormal);
+                refractedRay = refract(WorldRayDirection(), faceNormal, refractiveIndex);
+                reflectedRay = reflect(WorldRayDirection(), faceNormal);
 
                 ray.Origin = worldPosition + 0.01f * refractedRay;
                 ray.Direction = refractedRay;
@@ -201,24 +203,29 @@
                 float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);
 
                 RayDesc ray;
+                float reflectedRay, refractedRay;
 
                 if (payload.bounceIndex < 2)
                 {
                     float3 worldPosFinal;
-                    payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
+
+                    payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal, refractedRay, reflectedRay);
                 }
 
-                
-                payload.primateColor.xyz = payload.color.xyz;
-                payload.primateNormal = faceNormal;
-                payload.worldPos = float4(worldPosition, 1);
-                payload.didHitSpecular = 0;
+                if (payload.bounceIndex == 0)
+                {
+                    // must happen here due to recursion
+                    payload.primateColor.xyz = payload.color.xyz;
+                    payload.primateNormal = faceNormal;
+                    payload.worldPos = float4(worldPosition, 1);
+                    payload.didHitSpecular = 0;
 
-                payload.energy = 0;
-                payload.color.xyz = _Color.xyz;
-                payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
-                payload.bounceRayDir = faceNormal;
-                payload.bounceIndex += 1;
+                    payload.energy = 0;
+                    payload.color.xyz = _Color.xyz;
+                    payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
+                    payload.bounceRayDir = faceNormal;
+                    payload.bounceIndex += 1;
+                }
                 
             }
 
@@ -245,13 +252,26 @@
 
                 faceNormal = isFrontFace ? faceNormal : -faceNormal;
 
-                //float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);                
+                float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);                
 
-                payload.energy = 0;
-                payload.color.xyz = _Color.xyz;
-                payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
-                payload.bounceRayDir = faceNormal;
-                payload.bounceIndex += 1;
+                RayDesc ray;
+                float reflectedRay, refractedRay;
+
+                if (payload.bounceIndex < 2)
+                {
+                    float3 worldPosFinal;
+
+                    payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal, refractedRay, reflectedRay);
+                }
+
+                if (payload.bounceIndex == 0)
+                {
+                    payload.energy = 0;
+                    payload.color.xyz = _Color.xyz;
+                    payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * faceNormal, 1);
+                    payload.bounceRayDir = faceNormal;
+                    payload.bounceIndex += 1;
+                }
             }
 
           

@@ -33,7 +33,7 @@ Material:
     - _MagicValue: 0
     - _Metallic: 0
     - _Power: 1
-    - _RefractiveIndex: 1.511
+    - _RefractiveIndex: 1.473
     - _Smoothness: 0
     - _Specular: 0
     - _UseEmission: -7.09
