@@ -285,6 +285,7 @@ void MainRayGenShader()
     {
         float4 directDiffuseGITemp;
         float4 indirectDiffuseGITemp;
+        // TODO: I am not sure if I am getting the rng rand generation right...Is it doing anything?
         float2 rng = float2(RandomFloat01(rngX), RandomFloat01(rngY));
         TraceDirectDiffuse(rng,directDiffuseGITemp, indirectDiffuseGITemp);
 
@@ -294,5 +295,5 @@ void MainRayGenShader()
     float4 emissive = g_Emissive[frameCoord];
     g_DirectDiffuse[frameCoord] = lerp((directDiffuseGI / spp - emissive), g_DirectDiffuse[frameCoord], 0.4);
     g_IndirectDiffuse[frameCoord] = (indirectDiffuseGI / spp - emissive) * 0.9 + g_IndirectDiffuse[frameCoord] * 0.1;
-
+    
 }

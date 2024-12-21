@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DiffuseBlue 2
+  m_Name: Glass
   m_Shader: {fileID: 4800000, guid: 5db8375383e233a4db344244830266c8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -24,19 +24,19 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
+        m_Texture: {fileID: 2800000, guid: dc7a87e9603900c4b85610540e3c8bbb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Glossiness: 0.5
-    - _Metallic: 0.747
+    - _Metallic: 0
     - _Power: 1
-    - _Smoothness: 0.461
+    - _Smoothness: 0
     - _Specular: 0
-    - _UseEmission: 2.63
+    - _UseEmission: -7.09
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Emission: {r: 0, g: 0.7677231, b: 14.754423, a: 1}
+    - _Emission: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -225,11 +225,6 @@
             [shader("closesthit")]
             void ClosestHitMain(inout RayPayload payload : SV_RayPayload, AttributeData attribs : SV_IntersectionAttributes)
             {
-                /*if (payload.bounceIndexOpaque > 1)
-                {
-                    payload.bounceIndexOpaque = -1;
-                    return;
-                }*/
                 // primate
                 if (payload.rayType == 0)
                 {
