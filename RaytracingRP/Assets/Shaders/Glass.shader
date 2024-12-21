@@ -61,6 +61,7 @@
             #include "UnityShaderVariables.cginc"
             #include "UnityRaytracingMeshUtils.cginc"
             #include "RayPayload.hlsl"
+            #include "Utils.hlsl"
 
             #pragma raytracing test
 
@@ -137,6 +138,44 @@
                 // kt = 1 - kr;
             }
 
+            float3 TraceGlassRay(in float3 faceNormal, in float refractiveIndex, in float3 worldPosition, inout RayPayload payload, inout RayDesc ray, inout float3 worldPosFinal)
+            {
+                float kr;
+                fresnel(WorldRayDirection(), faceNormal, _RefractiveIndex, kr);
+
+                float3 refractedRay = refract(WorldRayDirection(), faceNormal, refractiveIndex);
+                float3 reflectedRay = reflect(WorldRayDirection(), faceNormal);
+
+                ray.Origin = worldPosition + 0.01f * refractedRay;
+                ray.Direction = refractedRay;
+                ray.TMin = 0;
+                ray.TMax = 1e20f;
+
+                RayPayload refrRayPayload;
+                refrRayPayload.color = float4(0, 0, 0, 0);
+                refrRayPayload.worldPos = float4(0, 0, 0, 1);
+                refrRayPayload.bounceIndex = payload.bounceIndex + 1;
+
+                TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, refrRayPayload);
+
+                ray.Origin = worldPosition + 0.01f * reflectedRay;
+                ray.Direction = reflectedRay;
+                ray.TMin = 0;
+                ray.TMax = 1e20f;
+
+                RayPayload reflRayPayload;
+                reflRayPayload.rayType = payload.rayType;
+                reflRayPayload.color = float4(0, 0, 0, 0);
+                reflRayPayload.worldPos = float4(0, 0, 0, 1);
+                reflRayPayload.bounceIndex = payload.bounceIndex + 1;
+
+                TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, reflRayPayload);
+
+                worldPosFinal = reflRayPayload.worldPos;
+                float3 specColor = 0;
+                return (lerp(refrRayPayload.color.xyz, reflRayPayload.color.xyz, kr) + specColor) * _Color.xyz;
+            }
+
             void HandlePrimateRay(inout RayPayload payload, AttributeData attribs)
             {
                 uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
@@ -150,76 +189,79 @@
                 Vertex v = InterpolateVertices(v0, v1, v2, barycentricCoords);
 
                 float3 worldPosition = mul(ObjectToWorld(), float4(v.position, 1));
-                
-                if (payload.bounceIndex < 5)
+
+                bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
+
+                float3 e0 = v1.position - v0.position;
+                float3 e1 = v2.position - v0.position;
+
+                float3 faceNormal = normalize(mul(lerp(v.normal, normalize(cross(e0, e1)), _MagicValue), (float3x3)WorldToObject()));
+
+                faceNormal = isFrontFace ? faceNormal : -faceNormal;
+                float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);
+
+                RayDesc ray;
+
+                if (payload.bounceIndex < 2)
                 {
-                    bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
-
-                    float3 e0 = v1.position - v0.position;
-                    float3 e1 = v2.position - v0.position;
-
-                    float3 faceNormal = normalize(mul(lerp(v.normal, normalize(cross(e0, e1)), _MagicValue), (float3x3)WorldToObject()));
-
-                    faceNormal = isFrontFace ? faceNormal : -faceNormal;
-
-                    float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);
-
-                    float kr;
-                    fresnel(WorldRayDirection(), faceNormal, _RefractiveIndex, kr);
-
-                    float3 refractedRay = refract(WorldRayDirection(), faceNormal, refractiveIndex);
-                    float3 reflectedRay = reflect(WorldRayDirection(), faceNormal);
-
-                    RayDesc ray;
-                    ray.Origin = worldPosition + 0.01f * refractedRay;
-                    ray.Direction = refractedRay;
-                    ray.TMin = 0;
-                    ray.TMax = 1e20f;
-
-                    RayPayload refrRayPayload;
-                    refrRayPayload.color = float4(0, 0, 0, 0);
-                    refrRayPayload.worldPos = float4(0, 0, 0, 1);
-                    refrRayPayload.bounceIndex = payload.bounceIndex + 1;
-
-                    TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, refrRayPayload);
-
-                    ray.Origin = worldPosition + 0.01f * reflectedRay;
-                    ray.Direction = reflectedRay;
-                    ray.TMin = 0;
-                    ray.TMax = 1e20f;
-
-                    RayPayload reflRayPayload;
-                    reflRayPayload.rayType = 0;
-                    reflRayPayload.color = float4(0, 0, 0, 0);
-                    reflRayPayload.worldPos = float4(0, 0, 0, 1);
-                    reflRayPayload.bounceIndex = payload.bounceIndex + 1;
-
-                    TraceRay(g_SceneAccelStruct, 0, 0xFF, 0, 1, 0, ray, reflRayPayload);
-
-                    float3 specColor = 0;
-
-                    /*if (payload.bounceIndex == 0)
-                    {
-                        float3 vecToLight = normalize(PointLightPosition.xyz - worldPosition);
-                        specColor = pow(max(dot(reflectedRay, vecToLight), 0), 19.3) * PointLightColor;
-                    }*/
-
-                    payload.primateColor.xyz = payload.color.xyz = (lerp(refrRayPayload.color.xyz, reflRayPayload.color.xyz, kr) + specColor) * _Color.xyz;
-
-                    if (payload.bounceIndex == 0)
-                    {
-                        payload.worldPos = float4(worldPosition, 1);
-                    }
+                    float3 worldPosFinal;
+                    payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
                 }
-                else
-                {
-                    float3 albedo = _Color.xyz;
 
-                    payload.color = float4(albedo, 1);
-                    payload.worldPos = float4(worldPosition, 1);
-                }
+                payload.primateColor.xyz = payload.color.xyz;
+                payload.primateNormal = faceNormal;
+                payload.worldPos = float4(worldPosition, 1);
+                payload.bounceIndex += 1;
                 payload.didHitSpecular = 0;
+            }
 
+            void HandleDirectDiffuseRay(inout RayPayload payload, AttributeData attribs)
+            {
+                uint3 triangleIndices = UnityRayTracingFetchTriangleIndices(PrimitiveIndex());
+
+                Vertex v0, v1, v2;
+                v0 = FetchVertex(triangleIndices.x);
+                v1 = FetchVertex(triangleIndices.y);
+                v2 = FetchVertex(triangleIndices.z);
+
+                float3 barycentricCoords = float3(1.0 - attribs.barycentrics.x - attribs.barycentrics.y, attribs.barycentrics.x, attribs.barycentrics.y);
+                Vertex v = InterpolateVertices(v0, v1, v2, barycentricCoords);
+
+                float3 worldPosition = mul(ObjectToWorld(), float4(v.position, 1));
+
+                bool isFrontFace = (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE);
+
+                float3 e0 = v1.position - v0.position;
+                float3 e1 = v2.position - v0.position;
+
+                float3 faceNormal = normalize(mul(lerp(v.normal, normalize(cross(e0, e1)), _MagicValue), (float3x3)WorldToObject()));
+
+                faceNormal = isFrontFace ? faceNormal : -faceNormal;
+
+                float refractiveIndex = isFrontFace ? (1.0f / _RefractiveIndex) : (_RefractiveIndex / 1.0f);
+
+                RayDesc ray;
+                //float3 worldPosFinal;
+
+                /*if (payload.bounceIndex < 1)
+                {
+                    payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
+                }*/
+
+                //payload.color.xyz = TraceGlassRay(faceNormal, refractiveIndex, worldPosition, payload, ray, worldPosFinal);
+
+                payload.energy = 0;
+                payload.color.xyz = _Color.xyz;
+
+                float3 specularRayDir = reflect(WorldRayDirection(), faceNormal);
+
+
+                payload.bounceRayOrigin = float4(worldPosition + K_RAY_ORIGIN_PUSH_OFF * specularRayDir, 1);
+                payload.bounceRayDir = specularRayDir;
+                payload.bounceIndex += 1;
+
+                //ray.Origin = worldPosition + 0.01f * reflectedRay;
+                //ray.Direction = reflectedRay;
             }
 
           
@@ -232,14 +274,14 @@
                 {
                     HandlePrimateRay(payload, attribs);
                 }
-                /*else if (payload.rayType == 1)
+                else if (payload.rayType == 1)
                 {
                     HandleDirectDiffuseRay(payload, attribs);
                 }
                 else if (payload.rayType == 2)
                 {
                     HandleDirectDiffuseRay(payload, attribs);
-                }*/             
+                }             
             }
 
             ENDHLSL

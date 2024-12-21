@@ -110,7 +110,7 @@
                 return v;
             }
 
-            bool ReflectedRay(inout float3 bounceRayOrigin, inout float3 bounceRayDir, inout uint rngState, inout float specular, float3 faceNormal, float3 worldPosition)
+            bool ReflectedRay(inout float3 bounceRayOrigin, inout float3 bounceRayDir, inout uint rngState, float3 faceNormal, float3 worldPosition)
             {
                 float3 diffuseRayDir = normalize(faceNormal + RandomUnitVector(rngState));
 
@@ -171,7 +171,7 @@
                 payload.bounceIndex += 1;
 
                 uint rng = 0;
-                if (ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, rng, payload.specular, faceNormal, worldPosition))
+                if (ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, rng, faceNormal, worldPosition))
                 {
                     payload.didHitSpecular = 1;
                     //payload.specular = _Metallic * _Smoothness;
@@ -217,7 +217,7 @@
                     payload.color = float4(albedo, 1);
                 }
 
-                ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, payload.rngState, payload.specular, faceNormal, worldPosition);
+                ReflectedRay(payload.bounceRayOrigin, payload.bounceRayDir, payload.rngState, faceNormal, worldPosition);
 
                 payload.bounceIndex += 1;
             }
