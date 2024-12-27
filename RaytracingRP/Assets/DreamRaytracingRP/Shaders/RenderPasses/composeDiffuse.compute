@@ -1,0 +1,26 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> g_Result;
+RWTexture2D<float4> g_Albedo;
+RWTexture2D<float4> g_DirectDiffuse;
+RWTexture2D<float4> g_IndirectDiffuse;
+RWTexture2D<float4> g_PrimateSkyboxOutput;
+RWTexture2D<float4> g_Emissive;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    int2 frameCoord = id.xy;
+
+    float4 combinedLighting = (g_IndirectDiffuse[frameCoord] + g_DirectDiffuse[frameCoord]);
+
+    float4 finalColor = (g_Albedo[frameCoord]) * combinedLighting + g_PrimateSkyboxOutput[frameCoord] + g_Emissive[frameCoord];
+
+    g_Result[frameCoord] = finalColor;
+
+}

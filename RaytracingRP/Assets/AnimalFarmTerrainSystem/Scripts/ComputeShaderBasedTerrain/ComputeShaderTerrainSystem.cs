@@ -109,6 +109,7 @@ namespace AnimalFarmTerrainSystem
                     go.transform.SetParent(transform, false);
                     var mf = go.AddComponent<MeshFilter>();
                     var mr = go.AddComponent<MeshRenderer>();
+                    var mc = go.AddComponent<MeshCollider>();
                     go.transform.position = new Vector3(x, 0, y) * chunkSize;
                     mr.sharedMaterial = material;
                     mf.sharedMesh = new Mesh();
@@ -209,6 +210,8 @@ namespace AnimalFarmTerrainSystem
                     mesh.SetTriangles(tris.ToArray(), 0);
                     mesh.RecalculateNormals();  
                     mesh.RecalculateBounds();
+
+                    mc.sharedMesh = mesh;
                     #endregion
                     vertexComputeBuffer.Dispose();
                     currentProgress++;
