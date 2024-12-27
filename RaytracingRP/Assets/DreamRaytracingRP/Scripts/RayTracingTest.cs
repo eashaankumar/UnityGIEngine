@@ -6,14 +6,30 @@ namespace DreamRaytracingRP
     [ExecuteInEditMode]
     public class RayTracingTest : MonoBehaviour
     {
-        public Transform sunDir;
-        public float sunIntensity;
+        public ProceduralSkybox procSkybox;
         public UnityEngine.Rendering.RayTracingShader rayTracingShader = null;
         public DreamRenderPass[] renderPasses;
         public Cubemap envMap = null;
 
         private int cameraWidth = 0;
         private int cameraHeight = 0;
+
+        [System.Serializable]
+        public struct ProceduralSkybox
+        {
+            public Transform sunDir;
+            public float sunIntensity;
+            public float sunFocus;
+
+            [SerializeField, ColorUsageAttribute(showAlpha: false, hdr: true)]
+            public Color horizonColor;
+
+            [SerializeField, ColorUsageAttribute(showAlpha: false, hdr: true)]
+            public Color zenithColor;
+
+            [SerializeField, ColorUsageAttribute(showAlpha: false, hdr: true)]
+            public Color groundColor;
+        }
 
         private RenderTexture primateRayOutput = null, primateSkyboxOutput = null, primateNormalDepth = null, 
             directDiffuse = null, indirectDiffuse = null, worldPosBuffer = null, motionBuffer = null,
@@ -176,8 +192,13 @@ namespace DreamRaytracingRP
             rayTracingShader.SetMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
             rayTracingShader.SetFloat(Shader.PropertyToID("g_Zoom"), Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView * 0.5f));
             rayTracingShader.SetFloat("g_dt", Time.deltaTime);
-            rayTracingShader.SetFloat("g_SunIntensity", sunIntensity);
-            rayTracingShader.SetVector("g_SunDir", sunDir.transform.forward);
+            rayTracingShader.SetFloat("g_SunIntensity", procSkybox.sunIntensity);
+            rayTracingShader.SetFloat("g_SunFocus", procSkybox.sunFocus);
+            rayTracingShader.SetVector("g_SunDir", procSkybox.sunDir.transform.forward);
+            rayTracingShader.SetVector("g_SkyColorHorizon", procSkybox.horizonColor);
+            rayTracingShader.SetVector("g_SkyColorZenith", procSkybox.zenithColor);
+            rayTracingShader.SetVector("g_GroundColor", procSkybox.groundColor);
+
             //rayTracingShader.SetInt("g_seed", (int)UnityEngine.Random.Range(0, uint.MaxValue));
 
             // Output

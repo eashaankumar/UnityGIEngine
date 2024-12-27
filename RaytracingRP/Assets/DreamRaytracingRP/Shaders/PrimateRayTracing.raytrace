@@ -10,10 +10,16 @@
 RaytracingAccelerationStructure g_SceneAccelStruct;
 float4x4 								g_InvViewMatrix;
 float4x4 								g_ViewMatrix;
+
 float3                                  g_SunDir;
+float                                   g_SunIntensity;
+float                                   g_SunFocus;
+float3                                  g_SkyColorHorizon;
+float3                                  g_SkyColorZenith;
+float3                                  g_GroundColor;
+
 float                                   g_Zoom;
 float                                   g_dt;
-float                                   g_SunIntensity;
 int                                     g_seed;
 TextureCube<float4>                     g_EnvTex;
 SamplerState                            sampler_linear_repeat;
@@ -33,11 +39,23 @@ float lerp(float a, float b, float f)
     return a * (1.0 - f) + (b * f);
 }
 
+float3 GetEnvironmentLight(float3 rayDir)
+{
+    // Seb Lague https://www.youtube.com/watch?v=Qz0KTGYJtUk 20:13
+    float skyGradientT = pow(smoothstep(0, 0.4, rayDir.y), 0.35);
+    float3 skyGradient = lerp(g_SkyColorHorizon, g_SkyColorZenith, skyGradientT);
+    float sun = pow(max(0, dot(rayDir, g_SunDir)), g_SunFocus) * g_SunIntensity;
+
+    float groundToSkyT = smoothstep(-0.01, 0, rayDir.y);
+    float sunMask = groundToSkyT >= 1;
+    return lerp(g_GroundColor, skyGradient, groundToSkyT) + sun * sunMask;
+}
+
 [shader("miss")]
 void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
 {
     // skybox wipes all albedo and energy (since each ray is locally fired)
-    float3 dir = WorldRayDirection();
+    /*float3 dir = WorldRayDirection();
     float d = saturate(dot(dir, g_SunDir));
     float4 light =0;
     float sunsize = 0.5;
@@ -47,9 +65,11 @@ void MainMissShader1_DiffuseRayInitial(inout RayPayload payload : SV_RayPayload)
         {
             light = lerp(0, 1, 1.0-(1-sunsize)/d) * g_SunIntensity;
         }
-    }
+    }*/
 
 	payload.energy = g_EnvTex.SampleLevel(sampler_linear_repeat, WorldRayDirection(), 0) * g_SunIntensity;
+    
+    //payload.energy = float4(GetEnvironmentLight(WorldRayDirection()), 1);
     payload.worldPos.w = 0;
 }
 
@@ -167,7 +187,7 @@ float Attentuate(float3 worldPos, float rayOrigin, float fraction)
     return exp(-length(worldPos - rayOrigin) * fraction);
 }
 
-void TraceDirectDiffuse(float2 rng, inout float4 directDiffuseGI, inout float4 indirectDiffuseGI)
+void TraceDirectDiffuse(inout uint rngState, inout float4 directDiffuseGI, inout float4 indirectDiffuseGI)
 {
     // Direct Diffuse (Sunlight only)
     int2 launchIndex = uint2(DispatchRaysIndex().x, DispatchRaysDimensions().y - DispatchRaysIndex().y - 1);
@@ -177,11 +197,8 @@ void TraceDirectDiffuse(float2 rng, inout float4 directDiffuseGI, inout float4 i
     float2 frameCoord = launchIndex + float2(0.5, 0.5);
      // Initial random number generator seed for this pixel. The rngState will change every time we draw a random number.
     
-    int convergenceStep = 0;
-    uint g_FrameIndex = 0;
-    uint rngState = uint(uint(launchIndex.x) * uint(g_seed + 1973) + uint(launchIndex.y) * uint(g_seed + 9277) + uint(convergenceStep + g_FrameIndex) * uint(g_seed + 26699)) | uint(1);
 
-    float2 jitter = float2(RandomFloat01(rngState), RandomFloat01(rngState)) + rng - float2(0.5, 0.5);
+    float2 jitter = float2(RandomFloat01(rngState), RandomFloat01(rngState)) - float2(0.5, 0.5);
     float2 ndcCoords = (frameCoord + jitter) / float2(launchDim.x - 1, launchDim.y - 1);
 
     ndcCoords = ndcCoords * 2 - float2(1, 1);
@@ -271,21 +288,25 @@ void MainRayGenShader()
     float4 directDiffuseGI;
     float4 indirectDiffuseGI;
 
-    int spp = 10;
-    float rngX = 0;
-    float rngY = 0;
-    float2 rng;
+    uint spp = 10;
+
+    uint g_FrameIndex = 0;
+    int convergenceStep = 0;
+    int2 launchIndex = uint2(DispatchRaysIndex().x, DispatchRaysDimensions().y - DispatchRaysIndex().y - 1);
+    uint rngState = uint(uint(launchIndex.x) * uint(g_seed + 1973) + uint(launchIndex.y) * uint(g_seed + 9277) + uint(convergenceStep + g_FrameIndex) * uint(g_seed + 26699)) | uint(1);
+
     for(int i = 0; i < spp; i++)
     {
         float4 directDiffuseGITemp;
         float4 indirectDiffuseGITemp;
         // TODO: I am not sure if I am getting the rng rand generation right...Is it doing anything?
-        float2 rng = float2(RandomFloat01(rngX), RandomFloat01(rngY));
-        TraceDirectDiffuse(rng,directDiffuseGITemp, indirectDiffuseGITemp);
+        TraceDirectDiffuse(rngState,directDiffuseGITemp, indirectDiffuseGITemp);
 
         directDiffuseGI += directDiffuseGITemp;
         indirectDiffuseGI += indirectDiffuseGITemp;
     }
+
+
     float4 emissive = g_Emissive[frameCoord];
     g_DirectDiffuse[frameCoord] = lerp((directDiffuseGI / spp - emissive), g_DirectDiffuse[frameCoord], 0.4);
     g_IndirectDiffuse[frameCoord] = lerp((indirectDiffuseGI / spp - emissive), g_IndirectDiffuse[frameCoord], 0.4);

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92321dff9c6ce1b429918db9817062b4, type: 3}
   m_Name: Second ATrousFilterPass
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   atrousShader: {fileID: 7200000, guid: 6d499a668ec760647b25dd88d91db593, type: 3}
   passes: 4
   phiNormal: 50.3

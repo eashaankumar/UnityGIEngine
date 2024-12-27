@@ -339,8 +339,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f424bac4b9e217149932c520466eea37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sunDir: {fileID: 749200763}
-  sunIntensity: 0.72
+  procSkybox:
+    sunDir: {fileID: 749200763}
+    sunIntensity: 1
+    sunFocus: 453.6
+    horizonColor: {r: 0.992, g: 1.1564853, b: 2, a: 1}
+    zenithColor: {r: 0.12264156, g: 0.43176872, b: 2, a: 1}
+    groundColor: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 0}
   rayTracingShader: {fileID: 4807578003741378534, guid: ff0421f3959e85d43a165fccf7837be0,
     type: 3}
   renderPasses:
@@ -350,7 +355,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 992081c08c556e847a730ed8ee7ad3b7, type: 2}
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}
   - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
-  envMap: {fileID: 8900000, guid: c9bc6cdb7a2e78b4c85ae74715b0a355, type: 3}
+  envMap: {fileID: 8900000, guid: 99af420a4ccafa74abdc47436d8b0685, type: 3}
 --- !u!1 &80004435
 GameObject:
   m_ObjectHideFlags: 0
