@@ -38,7 +38,7 @@ float2 WorldToClip(float3 worldPos)
     // Perform perspective divide and adjust range
     // NDC's -1...1 
     float2 clip = (projected.xy / projected.w);
-
+    //clip = clip * 0.5 + 0.5;
     return -clip;
 }
 
@@ -106,7 +106,8 @@ float CalculateEdgeStoppingWeight(float2 pixelId, float pixDst, float luminCente
     depthDiff = min(depthDiff, 100);
     float weightZ = exp(-depthDiff * 1 / max(pixDst, 1));
 
-    weightNormal *= exp(-depthDiff / depthP);
+    //if (depthDiff > 10)
+     //   weightNormal *= exp(-depthDiff * pixDst);
 
     // luminance
     float luminPix = CalculateLuminance(NoisyInput(pixelId.xy));
