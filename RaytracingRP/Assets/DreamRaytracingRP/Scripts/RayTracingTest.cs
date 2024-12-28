@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using DreamRaytracingRP.DreamRP;
 
-namespace DreamRaytracingRP
+namespace DreamRaytracingRP.Rendering
 {
     [ExecuteInEditMode]
     public class RayTracingTest : MonoBehaviour
@@ -36,7 +36,7 @@ namespace DreamRaytracingRP
             emissive = null;
         private RenderTexture result = null;
 
-        private UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
+        public UnityEngine.Rendering.RayTracingAccelerationStructure raytracingAccelerationStructure = null;
         private DreamRenderPass.RenderData renderData;
         private void BuildRaytracingAccelerationStructure()
         {
@@ -55,8 +55,9 @@ namespace DreamRaytracingRP
 
         public void RebuildRTAS()
         {
-            raytracingAccelerationStructure.Dispose();
+            if (raytracingAccelerationStructure != null) raytracingAccelerationStructure.Dispose();
             raytracingAccelerationStructure=null;
+            CreateResources();
         }
 
         private void ReleaseResources()
@@ -162,10 +163,10 @@ namespace DreamRaytracingRP
             ReleaseResources();
         }
 
-        private void Update()
+        /*private void Update()
         {
             CreateResources();
-        }
+        }*/
 
         void OnRenderImage(RenderTexture src, RenderTexture dest)
         {

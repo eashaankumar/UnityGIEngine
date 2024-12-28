@@ -14,4 +14,9 @@ namespace DreamRaytracingRP.Rendering.ECS.Structs
     {
         
     }
+
+    public struct Cube : IComponentData
+    {
+
+    }
 }

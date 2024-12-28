@@ -206,6 +206,7 @@ GameObject:
   - component: {fileID: 58920016}
   - component: {fileID: 58920019}
   - component: {fileID: 58920020}
+  - component: {fileID: 58920021}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -356,6 +357,21 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}
   - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
   envMap: {fileID: 8900000, guid: 99af420a4ccafa74abdc47436d8b0685, type: 3}
+--- !u!114 &58920021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 58920015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 399ddb3121f72a8418054e9da0b7fd55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rtTest: {fileID: 58920020}
+  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
 --- !u!1 &80004435
 GameObject:
   m_ObjectHideFlags: 0
