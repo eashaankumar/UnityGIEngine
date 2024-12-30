@@ -44,7 +44,7 @@ namespace DreamRaytracingRP.Rendering
             {
                 UnityEngine.Rendering.RayTracingAccelerationStructure.Settings settings = new UnityEngine.Rendering.RayTracingAccelerationStructure.Settings();
                 settings.rayTracingModeMask = UnityEngine.Rendering.RayTracingAccelerationStructure.RayTracingModeMask.Everything;
-                settings.managementMode = UnityEngine.Rendering.RayTracingAccelerationStructure.ManagementMode.Automatic;
+                settings.managementMode = UnityEngine.Rendering.RayTracingAccelerationStructure.ManagementMode.Manual;
                 settings.layerMask = 255;
 
                 raytracingAccelerationStructure = new UnityEngine.Rendering.RayTracingAccelerationStructure(settings);

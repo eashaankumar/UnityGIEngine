@@ -3,10 +3,18 @@ using Unity.Mathematics;
 
 namespace DreamRaytracingRP.Rendering.ECS.Structs
 {
-    public struct Transform : IComponentData
+    public struct TransformPosition : IComponentData
     {
         public double3 position;
+    }
+
+    public struct TransformOrientation : IComponentData
+    {
         public quaternion rotation;
+    }
+
+    public struct TransformScale : IComponentData
+    {
         public double3 scale;
     }
 

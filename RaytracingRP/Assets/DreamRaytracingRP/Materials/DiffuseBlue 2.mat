@@ -35,7 +35,7 @@ Material:
     - _Power: 1
     - _Smoothness: 0.461
     - _Specular: 0
-    - _UseEmission: 0.86
+    - _UseEmission: 1.46
     m_Colors:
     - _Color: {r: 0, g: 0.29543877, b: 1, a: 1}
     - _Emission: {r: 0, g: 1.2471696, b: 23.968628, a: 1}

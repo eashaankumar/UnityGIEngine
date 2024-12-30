@@ -372,6 +372,7 @@ MonoBehaviour:
   rtTest: {fileID: 58920020}
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
+  grid: {x: 10, y: 10, z: 10}
 --- !u!1 &80004435
 GameObject:
   m_ObjectHideFlags: 0

@@ -30,11 +30,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Glossiness: 0.5
+    - _MagicValue: 0
     - _Metallic: 0
     - _Power: 1
     - _Smoothness: 0
     - _Specular: 0
-    - _UseEmission: -1.16
+    - _UseEmission: -309.51
     m_Colors:
     - _Color: {r: 0.39712024, g: 1, b: 0.3726415, a: 1}
     - _Emission: {r: 0, g: 0.080527164, b: 0.46107563, a: 1}
