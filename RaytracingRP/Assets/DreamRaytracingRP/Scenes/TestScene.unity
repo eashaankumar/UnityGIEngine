@@ -530,7 +530,7 @@ GameObject:
   - component: {fileID: 160191166}
   - component: {fileID: 160191167}
   m_Layer: 0
-  m_Name: __Graphics LAYER
+  m_Name: __GRAPHICS_LAYER   ORDER 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -545,7 +545,7 @@ Transform:
   m_GameObject: {fileID: 160191165}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.1821005, y: 10.195635, z: -14.584845}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -567,6 +567,7 @@ MonoBehaviour:
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
   grid: {x: 10, y: 10, z: 10}
+  startingPos: 100000000
   OnFloatingOriginCameraCreated:
     m_PersistentCalls:
       m_Calls:

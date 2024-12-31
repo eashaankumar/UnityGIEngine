@@ -7,13 +7,13 @@ using UnityEngine.Rendering;
 
 namespace DreamRaytracingRP.Rendering.Layers
 {
-    [ExecuteInEditMode]
     public class GraphicsLayer : MonoBehaviour
     {
         [SerializeField] RayTracingTest rtTest;
         [SerializeField] Mesh mesh;
         [SerializeField] Material material;
         [SerializeField] Vector3Int grid;
+        [SerializeField] double startingPos;
 
         public static GraphicsLayer Instance { get; private set; }
 
@@ -35,7 +35,7 @@ namespace DreamRaytracingRP.Rendering.Layers
 
             EntityManager.AddComponentData(CameraEntity, new TransformPosition
             {
-                position = new double3(100000, 0, 0)
+                position = new double3(startingPos, 0, 0)
             });
 
             EntityManager.AddComponentData(CameraEntity, new TransformOrientation
@@ -87,7 +87,7 @@ namespace DreamRaytracingRP.Rendering.Layers
 
         void AddAllInstancesToRTAS()
         {
-            var start = new double3(100000, 0, 0);
+            var start = new double3(startingPos, 0, 0);
             for (int x = 0; x < grid.x; x++)
             {
                 for( int y = 0; y < grid.y; y++)
@@ -115,11 +115,15 @@ namespace DreamRaytracingRP.Rendering.Layers
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            Gizmos.matrix = Matrix4x4.TRS((float3)currentCameraFloatingOriginCache, currentCameraOrientationCache, Vector3.one);
-            Gizmos.color = Color.red;
-            //Gizmos.DrawCube(, 0.5f);
-            var cam = UnityEngine.Camera.main;
-            Gizmos.DrawFrustum(Vector3.zero, cam.fieldOfView, cam.farClipPlane, cam.nearClipPlane, cam.aspect);
+            if (Application.isPlaying)
+            {
+                Gizmos.matrix = Matrix4x4.TRS((float3)currentCameraFloatingOriginCache, currentCameraOrientationCache, Vector3.one);
+                Gizmos.color = Color.red;
+                //Gizmos.DrawCube(, 0.5f);
+                var cam = UnityEngine.Camera.main;
+                Gizmos.DrawFrustum(Vector3.zero, cam.fieldOfView, cam.farClipPlane, cam.nearClipPlane, cam.aspect);
+            }
+            
         }
 #endif
     }
