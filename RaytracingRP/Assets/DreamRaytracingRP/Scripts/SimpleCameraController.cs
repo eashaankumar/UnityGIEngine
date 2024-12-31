@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using DreamRaytracingRP.Rendering.Layers;
+using Unity.Mathematics;
+using UnityEngine;
 
-namespace DreamRaytracingRP
+namespace DreamRaytracingRP.Rendering
 {
     public class SimpleCameraController : MonoBehaviour
     {
@@ -9,18 +11,19 @@ namespace DreamRaytracingRP
             public float yaw;
             public float pitch;
             public float roll;
-            public float x;
-            public float y;
-            public float z;
+            public double x;
+            public double y;
+            public double z;
 
-            public void SetFromTransform(Transform t)
+            public void SetFromTransform(double3 position, quaternion q)
             {
-                pitch = t.eulerAngles.x;
-                yaw = t.eulerAngles.y;
-                roll = t.eulerAngles.z;
-                x = t.position.x;
-                y = t.position.y;
-                z = t.position.z;
+                var euler = math.Euler(q);
+                pitch = euler.x;
+                yaw = euler.y;
+                roll = euler.z;
+                x = position.x;
+                y = position.y;
+                z = position.z;
             }
 
             public void Translate(Vector3 translation)
@@ -38,20 +41,23 @@ namespace DreamRaytracingRP
                 pitch = Mathf.Lerp(pitch, target.pitch, rotationLerpPct);
                 roll = Mathf.Lerp(roll, target.roll, rotationLerpPct);
                 
-                x = Mathf.Lerp(x, target.x, positionLerpPct);
-                y = Mathf.Lerp(y, target.y, positionLerpPct);
-                z = Mathf.Lerp(z, target.z, positionLerpPct);
+                x = math.lerp(x, target.x, positionLerpPct);
+                y = math.lerp(y, target.y, positionLerpPct);
+                z = math.lerp(z, target.z, positionLerpPct);
             }
 
-            public void UpdateTransform(Transform t)
+            public void UpdateTransform(out double3 position, out quaternion q)
             {
-                t.eulerAngles = new Vector3(pitch, yaw, roll);
-                t.position = new Vector3(x, y, z);
+                float3 euler = new float3(pitch, yaw, roll);
+                q = quaternion.Euler(euler);
+                position = new double3(x, y, z);
             }
         }
         
         CameraState m_TargetCameraState = new CameraState();
         CameraState m_InterpolatingCameraState = new CameraState();
+
+        public GraphicsLayer graphicsLayer; 
 
         [Header("Movement Settings")]
         [Tooltip("Exponential boost factor on translation, controllable by mouse wheel.")]
@@ -72,8 +78,9 @@ namespace DreamRaytracingRP
 
         void OnEnable()
         {
-            m_TargetCameraState.SetFromTransform(transform);
-            m_InterpolatingCameraState.SetFromTransform(transform);
+            graphicsLayer.GetCameraFloatingOrigin(out var cameraPos, out var camRot);
+            m_TargetCameraState.SetFromTransform(cameraPos, camRot);
+            m_InterpolatingCameraState.SetFromTransform(cameraPos, camRot);
         }
 
         Vector3 GetInputTranslationDirection()
@@ -153,7 +160,8 @@ namespace DreamRaytracingRP
             var rotationLerpPct = 1f - Mathf.Exp((Mathf.Log(1f - 0.99f) / rotationLerpTime) * Time.deltaTime);
             m_InterpolatingCameraState.LerpTowards(m_TargetCameraState, positionLerpPct, rotationLerpPct);
 
-            m_InterpolatingCameraState.UpdateTransform(transform);
+            m_InterpolatingCameraState.UpdateTransform(out double3 camPos, out quaternion camRot);
+            graphicsLayer.UpdateCameraFloatingOrigin(camPos, camRot);
         }
     }
 

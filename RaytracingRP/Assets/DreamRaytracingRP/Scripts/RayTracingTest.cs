@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using DreamRaytracingRP.DreamRP;
+using DreamRaytracingRP.Rendering.Layers;
 
 namespace DreamRaytracingRP.Rendering
 {
@@ -10,6 +11,7 @@ namespace DreamRaytracingRP.Rendering
         public UnityEngine.Rendering.RayTracingShader rayTracingShader = null;
         public DreamRenderPass[] renderPasses;
         public Cubemap envMap = null;
+        public GraphicsLayer graphicsLayer;
 
         private int cameraWidth = 0;
         private int cameraHeight = 0;
@@ -183,14 +185,27 @@ namespace DreamRaytracingRP.Rendering
             // Use Shader Pass "Test" in surface (material) shaders."
             rayTracingShader.SetShaderPass("Test");
 
-            Shader.SetGlobalMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
+
+            graphicsLayer.GetCameraFloatingOrigin(out var camPos, out var camRot);
+
+            Matrix4x4 cameraFloatingOrigin = Camera.main.cameraToWorldMatrix;
+
+            /*Matrix4x4 cameraFloatingOrigin = Matrix4x4.TRS(Vector3.zero, camRot, Vector3.one);
+            cameraFloatingOrigin = Matrix4x4.Inverse(cameraFloatingOrigin);
+            // https://docs.unity3d.com/ScriptReference/Camera-worldToCameraMatrix.html
+            cameraFloatingOrigin.m20 *= -1f;
+            cameraFloatingOrigin.m21 *= -1f;
+            cameraFloatingOrigin.m22 *= -1f;
+            cameraFloatingOrigin.m23 *= -1f;*/
+
+            Shader.SetGlobalMatrix(Shader.PropertyToID("g_InvViewMatrix"), cameraFloatingOrigin);
             Shader.SetGlobalTexture(Shader.PropertyToID("g_EnvTex"), envMap);
 
             raytracingAccelerationStructure.Build();
 
             // Input
             rayTracingShader.SetAccelerationStructure(Shader.PropertyToID("g_SceneAccelStruct"), raytracingAccelerationStructure);
-            rayTracingShader.SetMatrix(Shader.PropertyToID("g_InvViewMatrix"), Camera.main.cameraToWorldMatrix);
+            rayTracingShader.SetMatrix(Shader.PropertyToID("g_InvViewMatrix"), cameraFloatingOrigin);
             rayTracingShader.SetFloat(Shader.PropertyToID("g_Zoom"), Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView * 0.5f));
             rayTracingShader.SetFloat("g_dt", Time.deltaTime);
             rayTracingShader.SetFloat("g_SunIntensity", procSkybox.sunIntensity);

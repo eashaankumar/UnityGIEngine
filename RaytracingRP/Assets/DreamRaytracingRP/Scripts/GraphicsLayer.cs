@@ -1,8 +1,10 @@
+using DreamRaytracingRP.Rendering.ECS.Structs;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace DreamRaytracingRP.Rendering
+namespace DreamRaytracingRP.Rendering.Layers
 {
     [ExecuteInEditMode]
     public class GraphicsLayer : MonoBehaviour
@@ -14,14 +16,47 @@ namespace DreamRaytracingRP.Rendering
 
         public static GraphicsLayer Instance { get; private set; }
 
+        public static EntityManager EntityManager;
+        public static Entity CameraEntity;
+
+        double3 currentCameraFloatingOriginCache;
+
         private void Awake()
         {
             if (Instance != null) Destroy(Instance);
             Instance = this;
+
+            EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            CameraEntity = EntityManager.CreateEntity();
+
+            EntityManager.AddComponentData(CameraEntity, new TransformPosition
+            {
+                position = (float3)UnityEngine.Camera.main.transform.position
+            });
+
+            EntityManager.AddComponentData(CameraEntity, new TransformOrientation
+            {
+                rotation = UnityEngine.Camera.main.transform.rotation
+            });
+
+            EntityManager.AddComponentData(CameraEntity, new ECS.Structs.Camera
+            {
+                
+            });
+
+            //UnityEngine.Camera.main.transform.rotation = rot;
+            UnityEngine.Camera.main.transform.position = Vector3.zero;
         }
 
         private void Update()
         {
+            GetCameraFloatingOrigin(out currentCameraFloatingOriginCache, out var rot);
+
+            UnityEngine.Camera.main.transform.rotation = rot;
+            UnityEngine.Camera.main.transform.position = Vector3.zero;
+
+            Debug.Log($"Floating Origin: {currentCameraFloatingOriginCache} {math.Euler(rot)}");
+            
             /// Clear RTAS
             rtTest.RebuildRTAS();
 
@@ -30,6 +65,18 @@ namespace DreamRaytracingRP.Rendering
 
             /// Build RTAS
             rtTest.raytracingAccelerationStructure.Build();
+        }
+
+        public void UpdateCameraFloatingOrigin(double3 position, quaternion rotation)
+        {
+            EntityManager.SetComponentData<TransformPosition>(CameraEntity, new TransformPosition { position = position });
+            EntityManager.SetComponentData<TransformOrientation>(CameraEntity, new TransformOrientation { rotation = rotation });
+        }
+
+        public void GetCameraFloatingOrigin(out double3 pos, out quaternion rotation)
+        {
+            pos = EntityManager.GetComponentData<TransformPosition>(CameraEntity).position;
+            rotation = EntityManager.GetComponentData<TransformOrientation>(CameraEntity).rotation;
         }
 
         void AddAllInstancesToRTAS()
@@ -51,6 +98,9 @@ namespace DreamRaytracingRP.Rendering
         public void AddMesh(Mesh mesh, Material mat, double3 position, quaternion quat, double3 scale)
         {
             if (rtTest.raytracingAccelerationStructure == null) return;
+
+            position = position - currentCameraFloatingOriginCache;
+
             var config = new RayTracingMeshInstanceConfig(mesh, 0, mat);
             var matrix = Matrix4x4.TRS((float3)position, quat, (float3)scale);
             rtTest.raytracingAccelerationStructure.AddInstance(config, matrix);
