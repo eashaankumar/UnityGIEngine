@@ -18,9 +18,9 @@ namespace DreamRaytracingRP.Rendering
             public void SetFromTransform(double3 position, quaternion q)
             {
                 var euler = math.Euler(q);
-                pitch = euler.x;
-                yaw = euler.y;
-                roll = euler.z;
+                pitch = euler.x * math.TODEGREES;
+                yaw = euler.y * math.TODEGREES;
+                roll = euler.z * math.TODEGREES;
                 x = position.x;
                 y = position.y;
                 z = position.z;
@@ -49,7 +49,7 @@ namespace DreamRaytracingRP.Rendering
             public void UpdateTransform(out double3 position, out quaternion q)
             {
                 float3 euler = new float3(pitch, yaw, roll);
-                q = quaternion.Euler(euler);
+                q = quaternion.Euler(euler * math.TORADIANS);
                 position = new double3(x, y, z);
             }
         }
@@ -78,7 +78,21 @@ namespace DreamRaytracingRP.Rendering
 
         void OnEnable()
         {
+            try
+            {
+                InitFloatingPointCamera();
+            }
+            catch
+            {
+
+            }
+        }
+
+        public void InitFloatingPointCamera()
+        {
             graphicsLayer.GetCameraFloatingOrigin(out var cameraPos, out var camRot);
+
+            Debug.Log("Camera setting to : " + cameraPos);
             m_TargetCameraState.SetFromTransform(cameraPos, camRot);
             m_InterpolatingCameraState.SetFromTransform(cameraPos, camRot);
         }

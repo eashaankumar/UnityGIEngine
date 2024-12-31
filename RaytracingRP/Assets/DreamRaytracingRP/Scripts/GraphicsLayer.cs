@@ -2,6 +2,7 @@ using DreamRaytracingRP.Rendering.ECS.Structs;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering;
 
 namespace DreamRaytracingRP.Rendering.Layers
@@ -20,6 +21,9 @@ namespace DreamRaytracingRP.Rendering.Layers
         public static Entity CameraEntity;
 
         double3 currentCameraFloatingOriginCache;
+        quaternion currentCameraOrientationCache;
+
+        public UnityEvent OnFloatingOriginCameraCreated;
 
         private void Awake()
         {
@@ -31,7 +35,7 @@ namespace DreamRaytracingRP.Rendering.Layers
 
             EntityManager.AddComponentData(CameraEntity, new TransformPosition
             {
-                position = (float3)UnityEngine.Camera.main.transform.position
+                position = new double3(100000, 0, 0)
             });
 
             EntityManager.AddComponentData(CameraEntity, new TransformOrientation
@@ -46,16 +50,18 @@ namespace DreamRaytracingRP.Rendering.Layers
 
             //UnityEngine.Camera.main.transform.rotation = rot;
             UnityEngine.Camera.main.transform.position = Vector3.zero;
+
+            OnFloatingOriginCameraCreated?.Invoke();
         }
 
         private void Update()
         {
-            GetCameraFloatingOrigin(out currentCameraFloatingOriginCache, out var rot);
+            GetCameraFloatingOrigin(out currentCameraFloatingOriginCache, out currentCameraOrientationCache);
 
-            UnityEngine.Camera.main.transform.rotation = rot;
+            UnityEngine.Camera.main.transform.rotation = currentCameraOrientationCache;
             UnityEngine.Camera.main.transform.position = Vector3.zero;
 
-            Debug.Log($"Floating Origin: {currentCameraFloatingOriginCache} {math.Euler(rot)}");
+            Debug.Log($"Floating Origin: {currentCameraFloatingOriginCache} {math.Euler(currentCameraOrientationCache)}");
             
             /// Clear RTAS
             rtTest.RebuildRTAS();
@@ -81,7 +87,7 @@ namespace DreamRaytracingRP.Rendering.Layers
 
         void AddAllInstancesToRTAS()
         {
-            var start = new double3(50, 372, 146);
+            var start = new double3(100000, 0, 0);
             for (int x = 0; x < grid.x; x++)
             {
                 for( int y = 0; y < grid.y; y++)
@@ -105,5 +111,16 @@ namespace DreamRaytracingRP.Rendering.Layers
             var matrix = Matrix4x4.TRS((float3)position, quat, (float3)scale);
             rtTest.raytracingAccelerationStructure.AddInstance(config, matrix);
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.matrix = Matrix4x4.TRS((float3)currentCameraFloatingOriginCache, currentCameraOrientationCache, Vector3.one);
+            Gizmos.color = Color.red;
+            //Gizmos.DrawCube(, 0.5f);
+            var cam = UnityEngine.Camera.main;
+            Gizmos.DrawFrustum(Vector3.zero, cam.fieldOfView, cam.farClipPlane, cam.nearClipPlane, cam.aspect);
+        }
+#endif
     }
 }

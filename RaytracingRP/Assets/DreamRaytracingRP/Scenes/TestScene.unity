@@ -137,7 +137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &18219030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,7 +206,6 @@ GameObject:
   - component: {fileID: 58920016}
   - component: {fileID: 58920019}
   - component: {fileID: 58920020}
-  - component: {fileID: 58920021}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -281,8 +280,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 58920015}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0016664695, y: 0.9965972, z: -0.07970482, w: -0.020941824}
-  m_LocalPosition: {x: 54.8, y: 372.02, z: 146.4}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -300,7 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33eb58f682f26fb4a96dd57e26bd5be5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  graphicsLayer: {fileID: 58920021}
+  graphicsLayer: {fileID: 160191167}
   boost: 3.5
   positionLerpTime: 0.001
   mouseSensitivityCurve:
@@ -358,23 +357,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 24c56897cc692df4ea8c3b36302630f3, type: 2}
   - {fileID: 11400000, guid: aed3a880b08b82742bf2e2a627be9b4c, type: 2}
   envMap: {fileID: 8900000, guid: 99af420a4ccafa74abdc47436d8b0685, type: 3}
-  graphicsLayer: {fileID: 58920021}
---- !u!114 &58920021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 58920015}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 399ddb3121f72a8418054e9da0b7fd55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rtTest: {fileID: 58920020}
-  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
-  grid: {x: 10, y: 10, z: 10}
+  graphicsLayer: {fileID: 160191167}
 --- !u!1 &80004435
 GameObject:
   m_ObjectHideFlags: 0
@@ -536,6 +519,70 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &160191165
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 160191166}
+  - component: {fileID: 160191167}
+  m_Layer: 0
+  m_Name: __Graphics LAYER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &160191166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160191165}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.1821005, y: 10.195635, z: -14.584845}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &160191167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160191165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 399ddb3121f72a8418054e9da0b7fd55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rtTest: {fileID: 58920020}
+  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
+  grid: {x: 10, y: 10, z: 10}
+  OnFloatingOriginCameraCreated:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 58920019}
+        m_TargetAssemblyTypeName: DreamRaytracingRP.Rendering.SimpleCameraController,
+          DreamRaytracingRP
+        m_MethodName: InitFloatingPointCamera
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &591476780
 GameObject:
   m_ObjectHideFlags: 0
@@ -1149,6 +1196,7 @@ MeshFilter:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 160191166}
   - {fileID: 58920018}
   - {fileID: 1003238481}
   - {fileID: 18219031}
