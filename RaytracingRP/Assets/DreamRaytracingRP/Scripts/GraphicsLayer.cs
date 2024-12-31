@@ -61,7 +61,7 @@ namespace DreamRaytracingRP.Rendering.Layers
             UnityEngine.Camera.main.transform.rotation = currentCameraOrientationCache;
             UnityEngine.Camera.main.transform.position = Vector3.zero;
 
-            Debug.Log($"Floating Origin: {currentCameraFloatingOriginCache} {math.Euler(currentCameraOrientationCache)}");
+            //Debug.Log($"Floating Origin: {currentCameraFloatingOriginCache} {math.Euler(currentCameraOrientationCache)}");
             
             /// Clear RTAS
             rtTest.RebuildRTAS();
