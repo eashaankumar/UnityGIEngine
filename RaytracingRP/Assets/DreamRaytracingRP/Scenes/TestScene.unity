@@ -342,10 +342,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   procSkybox:
     sunDir: {fileID: 749200763}
-    sunIntensity: 1
-    sunFocus: 453.6
-    horizonColor: {r: 0.992, g: 1.1564853, b: 2, a: 1}
-    zenithColor: {r: 0.12264156, g: 0.43176872, b: 2, a: 1}
+    sunIntensity: 2
+    sunFocus: 302.7
+    horizonColor: {r: 0.33507845, g: 0.5293195, b: 2, a: 1}
+    zenithColor: {r: 0.08532546, g: 0.17438957, b: 0.99215686, a: 1}
     groundColor: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 0}
   rayTracingShader: {fileID: 4807578003741378534, guid: ff0421f3959e85d43a165fccf7837be0,
     type: 3}
@@ -534,6 +534,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 80004435}
   m_Mesh: {fileID: -2432090755550338912, guid: 0afc37b6df89f5c448bb4ef0fecad81f, type: 3}
+--- !u!1 &143974678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 143974679}
+  - component: {fileID: 143974680}
+  m_Layer: 0
+  m_Name: Floating Point Origin Cam
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &143974679
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143974678}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 325135385}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &143974680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143974678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22165e9e88c252b4a9a4458d44dc132c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mesh: {fileID: -2432090755550338912, guid: 0afc37b6df89f5c448bb4ef0fecad81f, type: 3}
+  material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
+  grid: {x: 7, y: 7, z: 7}
+  startingPos: 1000000
 --- !u!1 &158897961
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,13 +680,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rtTest: {fileID: 58920020}
-  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: 2100000, guid: 20657cb6190b99d458845b617bf3eb18, type: 2}
-  grid: {x: 10, y: 10, z: 10}
-  startingPos: 100000000
   OnFloatingOriginCameraCreated:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 143974680}
+        m_TargetAssemblyTypeName: DreamRaytracingRP.Rendering.Tests.TestingFloatingPOintOriginCam,
+          DreamRaytracingRP
+        m_MethodName: OnCameraCreated
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 58920019}
         m_TargetAssemblyTypeName: DreamRaytracingRP.Rendering.SimpleCameraController,
           DreamRaytracingRP
@@ -652,6 +709,38 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &325135384
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 325135385}
+  m_Layer: 0
+  m_Name: __TESTS__
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &325135385
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325135384}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 572.8414, y: 652.50934, z: -680.32245}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 143974679}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &591476780
 GameObject:
   m_ObjectHideFlags: 0
@@ -1363,7 +1452,7 @@ Canvas:
   m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
-  m_PixelPerfect: 0
+  m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
@@ -1533,6 +1622,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 160191166}
+  - {fileID: 325135385}
   - {fileID: 58920018}
   - {fileID: 1003238481}
   - {fileID: 18219031}

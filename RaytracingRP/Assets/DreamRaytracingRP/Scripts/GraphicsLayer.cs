@@ -1,4 +1,5 @@
 using DreamRaytracingRP.Rendering.ECS.Structs;
+using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -10,10 +11,6 @@ namespace DreamRaytracingRP.Rendering.Layers
     public class GraphicsLayer : MonoBehaviour
     {
         [SerializeField] RayTracingTest rtTest;
-        [SerializeField] Mesh mesh;
-        [SerializeField] Material material;
-        [SerializeField] Vector3Int grid;
-        [SerializeField] double startingPos;
 
         public static GraphicsLayer Instance { get; private set; }
 
@@ -25,17 +22,21 @@ namespace DreamRaytracingRP.Rendering.Layers
 
         public UnityEvent OnFloatingOriginCameraCreated;
 
+        Queue<System.Action> commandQueue;
+
         private void Awake()
         {
             if (Instance != null) Destroy(Instance);
             Instance = this;
+
+            commandQueue = new Queue<System.Action>();
 
             EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             CameraEntity = EntityManager.CreateEntity();
 
             EntityManager.AddComponentData(CameraEntity, new TransformPosition
             {
-                position = new double3(startingPos, 0, 0)
+                position = 0
             });
 
             EntityManager.AddComponentData(CameraEntity, new TransformOrientation
@@ -66,8 +67,8 @@ namespace DreamRaytracingRP.Rendering.Layers
             /// Clear RTAS
             rtTest.RebuildRTAS();
 
-            /// Add all instances
-            AddAllInstancesToRTAS();
+            /// Replay command queue
+            while (commandQueue.Count > 0) commandQueue.Dequeue().Invoke();
 
             /// Build RTAS
             rtTest.raytracingAccelerationStructure.Build();
@@ -85,31 +86,18 @@ namespace DreamRaytracingRP.Rendering.Layers
             rotation = EntityManager.GetComponentData<TransformOrientation>(CameraEntity).rotation;
         }
 
-        void AddAllInstancesToRTAS()
-        {
-            var start = new double3(startingPos, 0, 0);
-            for (int x = 0; x < grid.x; x++)
-            {
-                for( int y = 0; y < grid.y; y++)
-                {
-                    for( int z = 0; z < grid.z; z++)
-                    {
-                        AddMesh(mesh, material, start + new int3(x, y, z) * 10, quaternion.identity, 2);
-
-                    }
-                }
-            }
-        }
-
         public void AddMesh(Mesh mesh, Material mat, double3 position, quaternion quat, double3 scale)
         {
-            if (rtTest.raytracingAccelerationStructure == null) return;
+            commandQueue.Enqueue(() =>
+            {
+                if (rtTest.raytracingAccelerationStructure == null) return;
 
-            position = position - currentCameraFloatingOriginCache;
+                position = position - currentCameraFloatingOriginCache;
 
-            var config = new RayTracingMeshInstanceConfig(mesh, 0, mat);
-            var matrix = Matrix4x4.TRS((float3)position, quat, (float3)scale);
-            rtTest.raytracingAccelerationStructure.AddInstance(config, matrix);
+                var config = new RayTracingMeshInstanceConfig(mesh, 0, mat);
+                var matrix = Matrix4x4.TRS((float3)position, quat, (float3)scale);
+                rtTest.raytracingAccelerationStructure.AddInstance(config, matrix);
+            });
         }
 
 #if UNITY_EDITOR
