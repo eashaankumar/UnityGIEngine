@@ -34,6 +34,15 @@ namespace DreamRaytracingRP.Physics.ECS.Structs
     public struct ForceAccumulator : IComponentData
     {
         public double3 v;
+        public void ClearAccumulator()
+        {
+            v = 0;
+        }
+
+        public void AddForce(double3 f)
+        {
+            v += f;
+        }
     }
 
     [BurstCompile]
@@ -48,6 +57,10 @@ namespace DreamRaytracingRP.Physics.ECS.Structs
     public struct TorqueAccumulator : IComponentData
     {
         public double3 v;
+        public void ClearAccumulator()
+        {
+            v = 0;
+        }
     }
 
     [BurstCompile]
@@ -69,8 +82,9 @@ namespace DreamRaytracingRP.Physics.ECS.Structs
 
     [BurstCompile]
     [StructLayout(LayoutKind.Sequential)]
-    public struct VerletParticle : IComponentData
+    public struct PBDParticle : IComponentData
     {
-        
+        public double radius;
+        public double3 previousPos;
     }
 }
